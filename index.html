@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Python 程式識讀 125 題 — 課堂互動題庫</title>
+<title>未來斑馬程式設計學苑｜APCS培訓系統</title>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -45,15 +45,20 @@
     z-index: 20;
   }
   header h1 {
-    font-size: 17px;
+    font-size: 18px;
     margin: 0;
-    font-weight: 700;
+    font-weight: 800;
+    letter-spacing: .2px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    line-height: 1.35;
   }
   header h1 span {
-    font-weight: 400;
+    font-weight: 500;
     color: var(--muted);
-    font-size: 13px;
-    margin-left: 8px;
+    font-size: 12px;
+    margin-left: 0;
   }
   .mode-switch {
     display: flex;
@@ -206,14 +211,22 @@
     margin-bottom: 14px;
     filter: drop-shadow(0 0 10px rgba(56,189,248,.65));
   }
+  .modal-brand {
+    text-align: center;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: .5px;
+    color: #e7ecf7;
+    margin-bottom: 4px;
+  }
   .modal-eyebrow {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     font-family: "SF Mono", "Menlo", "Consolas", monospace;
-    font-size: 11px;
-    letter-spacing: 3px;
+    font-size: 10.5px;
+    letter-spacing: 2px;
     color: #5ed0ff;
     text-transform: uppercase;
     margin-bottom: 10px;
@@ -679,7 +692,7 @@
 <body>
 
 <header>
-  <h1 id="bank-title">Python 程式識讀 125 題<span>課堂互動題庫</span></h1>
+  <h1 id="bank-title">未來斑馬程式設計學苑｜APCS培訓系統<span>Python 程式識讀 125 題・課堂互動題庫</span></h1>
   <div class="mode-switch" id="bank-switch-wrap" style="display:none;">
     <button id="btn-bank-main" class="active">125 題</button>
     <button id="btn-bank-apcs">APCS 歷屆試題</button>
@@ -711,7 +724,8 @@
         </defs>
       </svg>
     </div>
-    <div class="modal-eyebrow">Secure Access</div>
+    <div class="modal-brand">未來斑馬程式設計學苑</div>
+    <div class="modal-eyebrow">APCS 培訓系統 · Secure Access</div>
     <h3>登入</h3>
     <div class="sub">請先登入才能使用題庫。登入後，你的練習紀錄會存到雲端，換裝置也不會不見。</div>
 
@@ -833,9 +847,10 @@
 const ALL_QUESTIONS_MAIN = JSON.parse(document.getElementById('quiz-data').textContent);
 const ALL_QUESTIONS_APCS = JSON.parse(document.getElementById('quiz-data-apcs').textContent);
 const QUESTION_BANKS = { main: ALL_QUESTIONS_MAIN, apcs: ALL_QUESTIONS_APCS };
+const SITE_BRAND = '未來斑馬程式設計學苑｜APCS培訓系統';
 const BANK_LABELS = {
-  main: { title: 'Python 程式識讀 125 題', sub: '課堂互動題庫' },
-  apcs: { title: 'APCS 歷屆觀念題', sub: '依年份排列・獨立題庫' }
+  main: { title: SITE_BRAND, sub: 'Python 程式識讀 125 題・課堂互動題庫' },
+  apcs: { title: SITE_BRAND, sub: 'APCS 歷屆觀念題・依年份排列' }
 };
 let currentBank = 'main';
 function ALL_QUESTIONS_OF(bank) { return QUESTION_BANKS[bank || currentBank]; }
