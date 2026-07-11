@@ -168,10 +168,10 @@
   }
   #auth-modal.modal-overlay {
     background:
-      radial-gradient(ellipse 900px 600px at 50% 40%, rgba(56,120,190,.35), transparent 70%),
-      repeating-linear-gradient(0deg, rgba(94,180,255,.05) 0px, rgba(94,180,255,.05) 1px, transparent 1px, transparent 42px),
-      repeating-linear-gradient(90deg, rgba(94,180,255,.05) 0px, rgba(94,180,255,.05) 1px, transparent 1px, transparent 42px),
-      linear-gradient(160deg, #060914 0%, #0a0f1f 55%, #050810 100%);
+      radial-gradient(ellipse 900px 600px at 50% 40%, rgba(79,109,245,.14), transparent 70%),
+      repeating-linear-gradient(0deg, rgba(79,109,245,.06) 0px, rgba(79,109,245,.06) 1px, transparent 1px, transparent 42px),
+      repeating-linear-gradient(90deg, rgba(79,109,245,.06) 0px, rgba(79,109,245,.06) 1px, transparent 1px, transparent 42px),
+      linear-gradient(160deg, #eef2fb 0%, #f8fafc 55%, #eef1fa 100%);
     backdrop-filter: blur(3px);
   }
   @keyframes auth-rotate-border { to { --auth-angle: 360deg; } }
@@ -181,13 +181,13 @@
   }
   .modal-box {
     position: relative;
-    background: linear-gradient(180deg, rgba(20,26,44,.92), rgba(9,12,22,.96));
-    color: #e7ecf7;
+    background: linear-gradient(180deg, #ffffff, #f7f9fd);
+    color: #1f2430;
     border-radius: 18px;
     padding: 30px 30px 26px;
     width: 380px;
     max-width: 90vw;
-    box-shadow: 0 25px 70px rgba(0,0,0,.55), 0 0 40px rgba(56,189,248,.08);
+    box-shadow: 0 25px 70px rgba(31,41,68,.14), 0 0 40px rgba(79,109,245,.08);
     overflow: hidden;
     z-index: 1;
   }
@@ -197,7 +197,7 @@
     inset: -1px;
     border-radius: 18px;
     padding: 1px;
-    background: conic-gradient(from var(--auth-angle, 0deg), #38bdf8, #a78bfa, #38bdf8 70%, #38bdf8);
+    background: conic-gradient(from var(--auth-angle, 0deg), #4f6df5, #a78bfa, #4f6df5 70%, #4f6df5);
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
@@ -209,15 +209,14 @@
     display: flex;
     justify-content: center;
     margin-bottom: 14px;
-    filter: drop-shadow(0 0 10px rgba(56,189,248,.65));
+    filter: drop-shadow(0 0 10px rgba(79,109,245,.35));
   }
   .modal-brand {
     text-align: center;
     font-size: 18px;
     font-weight: 800;
     letter-spacing: .5px;
-    color: #f4f8ff;
-    text-shadow: 0 0 14px rgba(125,211,252,.35);
+    color: #1f2430;
     margin-bottom: 12px;
     line-height: 1.4;
   }
@@ -260,7 +259,7 @@
     font-family: "SF Mono", "Menlo", "Consolas", monospace;
     font-size: 10.5px;
     letter-spacing: 2px;
-    color: #5ed0ff;
+    color: #4f6df5;
     text-transform: uppercase;
     margin-bottom: 10px;
   }
@@ -269,8 +268,8 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #5ed0ff;
-    box-shadow: 0 0 8px 2px rgba(94,208,255,.85);
+    background: #4f6df5;
+    box-shadow: 0 0 8px 2px rgba(79,109,245,.55);
     animation: auth-pulse 1.8s ease-in-out infinite;
   }
   .modal-box h3 {
@@ -279,14 +278,14 @@
     font-weight: 800;
     text-align: center;
     letter-spacing: .5px;
-    background: linear-gradient(90deg, #7dd3fc, #c4b5fd);
+    background: linear-gradient(90deg, #4f6df5, #7c3aed);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
   .modal-box .sub {
     font-size: 12.5px;
-    color: #8b96b3;
+    color: #6b7280;
     text-align: center;
     line-height: 1.6;
     margin-bottom: 20px;
@@ -299,50 +298,50 @@
     gap: 10px;
     padding: 11px;
     border-radius: 10px;
-    border: 1px solid rgba(255,255,255,.14);
-    background: rgba(255,255,255,.04);
+    border: 1px solid #e3e5ea;
+    background: #ffffff;
     font-size: 14px;
     font-weight: 600;
-    color: #e7ecf7;
+    color: #1f2430;
     cursor: pointer;
     transition: all .15s;
   }
   .google-btn:hover {
-    border-color: #5ed0ff;
-    background: rgba(94,208,255,.08);
-    box-shadow: 0 0 18px rgba(94,208,255,.25);
+    border-color: #4f6df5;
+    background: #f3f6ff;
+    box-shadow: 0 4px 16px rgba(79,109,245,.18);
   }
   .divider {
     display: flex;
     align-items: center;
     gap: 10px;
     margin: 18px 0;
-    color: #5b6785;
+    color: #9aa2b5;
     font-size: 12px;
   }
   .divider::before, .divider::after {
     content: '';
     flex: 1;
     height: 1px;
-    background: rgba(255,255,255,.12);
+    background: #e3e5ea;
   }
   .modal-box input {
     width: 100%;
     padding: 10px 12px;
     border-radius: 10px;
-    border: 1px solid rgba(255,255,255,.14);
-    background: rgba(255,255,255,.04);
-    color: #e7ecf7;
+    border: 1px solid #e3e5ea;
+    background: #fafbfc;
+    color: #1f2430;
     font-size: 14px;
     margin-bottom: 10px;
     box-sizing: border-box;
     transition: all .15s;
   }
-  .modal-box input::placeholder { color: #5b6785; }
+  .modal-box input::placeholder { color: #9aa2b5; }
   .modal-box input:focus {
     outline: none;
-    border-color: #5ed0ff;
-    box-shadow: 0 0 0 3px rgba(94,208,255,.15);
+    border-color: #4f6df5;
+    box-shadow: 0 0 0 3px rgba(79,109,245,.15);
   }
   .auth-btn-row {
     display: flex;
@@ -353,27 +352,27 @@
     flex: 1;
     padding: 10px;
     border-radius: 10px;
-    border: 1px solid rgba(255,255,255,.14);
-    background: rgba(255,255,255,.04);
+    border: 1px solid #e3e5ea;
+    background: #ffffff;
     font-size: 13.5px;
     font-weight: 700;
     cursor: pointer;
-    color: #e7ecf7;
+    color: #1f2430;
     transition: all .15s;
   }
-  .auth-btn-row button:hover { border-color: #5ed0ff; }
+  .auth-btn-row button:hover { border-color: #4f6df5; }
   .auth-btn-row button.primary {
-    background: linear-gradient(90deg, #38bdf8, #818cf8);
+    background: linear-gradient(90deg, #4f6df5, #7c3aed);
     border-color: transparent;
-    color: #04070d;
-    box-shadow: 0 4px 20px rgba(56,189,248,.35);
+    color: #ffffff;
+    box-shadow: 0 4px 20px rgba(79,109,245,.35);
   }
   .auth-btn-row button.primary:hover {
-    box-shadow: 0 6px 26px rgba(56,189,248,.5);
+    box-shadow: 0 6px 26px rgba(79,109,245,.5);
     transform: translateY(-1px);
   }
   .auth-error {
-    color: #ff7a7a;
+    color: #d64545;
     font-size: 12.5px;
     margin-top: 8px;
     min-height: 16px;
@@ -751,8 +750,8 @@
         <path d="M9 12l2 2 4-4" stroke="url(#authGrad)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
         <defs>
           <linearGradient id="authGrad" x1="0" y1="0" x2="24" y2="24">
-            <stop offset="0" stop-color="#7dd3fc"/>
-            <stop offset="1" stop-color="#a78bfa"/>
+            <stop offset="0" stop-color="#4f6df5"/>
+            <stop offset="1" stop-color="#7c3aed"/>
           </linearGradient>
         </defs>
       </svg>
