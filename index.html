@@ -154,22 +154,96 @@
     justify-content: center;
     z-index: 100;
   }
+
+  /* ---------- 登入畫面：科技感重新設計 ---------- */
+  @property --auth-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+  #auth-modal.modal-overlay {
+    background:
+      radial-gradient(ellipse 900px 600px at 50% 40%, rgba(56,120,190,.35), transparent 70%),
+      repeating-linear-gradient(0deg, rgba(94,180,255,.05) 0px, rgba(94,180,255,.05) 1px, transparent 1px, transparent 42px),
+      repeating-linear-gradient(90deg, rgba(94,180,255,.05) 0px, rgba(94,180,255,.05) 1px, transparent 1px, transparent 42px),
+      linear-gradient(160deg, #060914 0%, #0a0f1f 55%, #050810 100%);
+    backdrop-filter: blur(3px);
+  }
+  @keyframes auth-rotate-border { to { --auth-angle: 360deg; } }
+  @keyframes auth-pulse {
+    0%, 100% { opacity: .55; }
+    50% { opacity: 1; }
+  }
   .modal-box {
-    background: var(--panel);
-    border-radius: 14px;
-    padding: 26px 28px;
-    width: 360px;
+    position: relative;
+    background: linear-gradient(180deg, rgba(20,26,44,.92), rgba(9,12,22,.96));
+    color: #e7ecf7;
+    border-radius: 18px;
+    padding: 30px 30px 26px;
+    width: 380px;
     max-width: 90vw;
-    box-shadow: 0 20px 60px rgba(0,0,0,.3);
+    box-shadow: 0 25px 70px rgba(0,0,0,.55), 0 0 40px rgba(56,189,248,.08);
+    overflow: hidden;
+    z-index: 1;
+  }
+  .modal-box::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 18px;
+    padding: 1px;
+    background: conic-gradient(from var(--auth-angle, 0deg), #38bdf8, #a78bfa, #38bdf8 70%, #38bdf8);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: auth-rotate-border 6s linear infinite;
+    pointer-events: none;
+    z-index: -1;
+  }
+  .modal-glow-icon {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 14px;
+    filter: drop-shadow(0 0 10px rgba(56,189,248,.65));
+  }
+  .modal-eyebrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: "SF Mono", "Menlo", "Consolas", monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: #5ed0ff;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .modal-eyebrow::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #5ed0ff;
+    box-shadow: 0 0 8px 2px rgba(94,208,255,.85);
+    animation: auth-pulse 1.8s ease-in-out infinite;
   }
   .modal-box h3 {
-    margin: 0 0 4px;
-    font-size: 17px;
+    margin: 0 0 6px;
+    font-size: 22px;
+    font-weight: 800;
+    text-align: center;
+    letter-spacing: .5px;
+    background: linear-gradient(90deg, #7dd3fc, #c4b5fd);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
   .modal-box .sub {
     font-size: 12.5px;
-    color: var(--muted);
-    margin-bottom: 18px;
+    color: #8b96b3;
+    text-align: center;
+    line-height: 1.6;
+    margin-bottom: 20px;
   }
   .google-btn {
     width: 100%;
@@ -177,38 +251,52 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: #fff;
+    padding: 11px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.14);
+    background: rgba(255,255,255,.04);
     font-size: 14px;
     font-weight: 600;
-    color: var(--ink);
+    color: #e7ecf7;
     cursor: pointer;
+    transition: all .15s;
   }
-  .google-btn:hover { border-color: var(--accent); }
+  .google-btn:hover {
+    border-color: #5ed0ff;
+    background: rgba(94,208,255,.08);
+    box-shadow: 0 0 18px rgba(94,208,255,.25);
+  }
   .divider {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin: 16px 0;
-    color: var(--muted);
+    margin: 18px 0;
+    color: #5b6785;
     font-size: 12px;
   }
   .divider::before, .divider::after {
     content: '';
     flex: 1;
     height: 1px;
-    background: var(--border);
+    background: rgba(255,255,255,.12);
   }
   .modal-box input {
     width: 100%;
-    padding: 9px 10px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.14);
+    background: rgba(255,255,255,.04);
+    color: #e7ecf7;
     font-size: 14px;
     margin-bottom: 10px;
     box-sizing: border-box;
+    transition: all .15s;
+  }
+  .modal-box input::placeholder { color: #5b6785; }
+  .modal-box input:focus {
+    outline: none;
+    border-color: #5ed0ff;
+    box-shadow: 0 0 0 3px rgba(94,208,255,.15);
   }
   .auth-btn-row {
     display: flex;
@@ -217,25 +305,33 @@
   }
   .auth-btn-row button {
     flex: 1;
-    padding: 9px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: #fafbfc;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.14);
+    background: rgba(255,255,255,.04);
     font-size: 13.5px;
     font-weight: 700;
     cursor: pointer;
-    color: var(--ink);
+    color: #e7ecf7;
+    transition: all .15s;
   }
+  .auth-btn-row button:hover { border-color: #5ed0ff; }
   .auth-btn-row button.primary {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
+    background: linear-gradient(90deg, #38bdf8, #818cf8);
+    border-color: transparent;
+    color: #04070d;
+    box-shadow: 0 4px 20px rgba(56,189,248,.35);
+  }
+  .auth-btn-row button.primary:hover {
+    box-shadow: 0 6px 26px rgba(56,189,248,.5);
+    transform: translateY(-1px);
   }
   .auth-error {
-    color: var(--red);
+    color: #ff7a7a;
     font-size: 12.5px;
     margin-top: 8px;
     min-height: 16px;
+    text-align: center;
   }
   .modal-close-row {
     text-align: right;
@@ -603,6 +699,19 @@
 
 <div class="modal-overlay" id="auth-modal" style="display:flex;">
   <div class="modal-box">
+    <div class="modal-glow-icon">
+      <svg width="42" height="42" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L4 5v6c0 5 3.4 8.7 8 9.9C16.6 19.7 20 16 20 11V5l-8-3z" stroke="url(#authGrad)" stroke-width="1.4" stroke-linejoin="round"/>
+        <path d="M9 12l2 2 4-4" stroke="url(#authGrad)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+        <defs>
+          <linearGradient id="authGrad" x1="0" y1="0" x2="24" y2="24">
+            <stop offset="0" stop-color="#7dd3fc"/>
+            <stop offset="1" stop-color="#a78bfa"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+    <div class="modal-eyebrow">Secure Access</div>
     <h3>登入</h3>
     <div class="sub">請先登入才能使用題庫。登入後，你的練習紀錄會存到雲端，換裝置也不會不見。</div>
 
