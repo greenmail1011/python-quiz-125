@@ -387,6 +387,14 @@
   .tag.diff-中 { background: #fff8e6; color: var(--amber); }
   .tag.diff-難 { background: var(--red-bg); color: var(--red); }
 
+  .stem-text {
+    font-size: 15.5px;
+    line-height: 1.75;
+    color: var(--ink);
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-bottom: 16px;
+  }
   .stem-code {
     background: var(--code-bg);
     color: var(--code-ink);
@@ -677,7 +685,8 @@
 
     <div class="lecture-hint" id="lecture-hint">點擊「顯示解答」查看答案與說明（適合課堂逐題講解）</div>
 
-    <div class="stem-code" id="stem-code"></div>
+    <div class="stem-text" id="stem-text"></div>
+    <div class="stem-code" id="stem-code" style="display:none;"></div>
 
     <div class="options" id="options"></div>
 
@@ -2582,7 +2591,7 @@
 [
   {
     "id": "2016_03_01",
-    "stem": "k = 4\nm = 1\nfor i in range(1, 6):\n    for j in range(1, k + 1):\n        print(\" \", end=\"\")\n    for j in range(1, m + 1):\n        print(\"*\", end=\"\")\n    print()\n    k -= 1\n    m += 1\n在不修改右側程式之第5行及第7行程式碼的前提下，最少需修改幾行程式碼以得到正確輸出？",
+    "stem": "在不修改右側程式之第5行及第7行程式碼的前提下，最少需修改幾行程式碼以得到正確輸出？",
     "options": {
       "A": "1",
       "B": "2",
@@ -2593,11 +2602,12 @@
     "explanation": "正確輸出的星號數應為 1,3,5,7,9（遞增2）。只需將第8行 m += 1 改為 m += 2，即可用最少1行修改得到正確輸出。",
     "topic": "巢狀迴圈、變數",
     "difficulty": "易",
+    "code": "k = 4\nm = 1\nfor i in range(1, 6):\n    for j in range(1, k + 1):\n        print(\" \", end=\"\")\n    for j in range(1, m + 1):\n        print(\"*\", end=\"\")\n    print()\n    k -= 1\n    m += 1",
     "examLabel": "2016年3月5日"
   },
   {
     "id": "2016_03_02",
-    "stem": "def f(a, n):\n    index = 0\n    for i in range(1, n):\n        if a[i] >= a[index]:\n            index = i\n    return index\n給定一陣列 a = [1,3,9,2,5,8,4,9,6,7]，i.e. a[0]=1,a[1]=3,....,a[8]=6,a[9]=7，以 f(a,10) 呼叫執行右側函式後，回傳值為何？",
+    "stem": "給定一陣列 a = [1,3,9,2,5,8,4,9,6,7]，i.e. a[0]=1,a[1]=3,....,a[8]=6,a[9]=7，以 f(a,10) 呼叫執行右側函式後，回傳值為何？",
     "options": {
       "A": "1",
       "B": "2",
@@ -2608,11 +2618,12 @@
     "explanation": "逐一比較 a[i] 是否大於等於目前最大值 a[index]（注意用 >=，允許相等時也更新）。最大值 9 先後出現在 a[2] 與 a[7]，因為 >= 的關係最後會更新到 index=7，故回傳 7。",
     "topic": "函式、陣列傳值",
     "difficulty": "易",
+    "code": "def f(a, n):\n    index = 0\n    for i in range(1, n):\n        if a[i] >= a[index]:\n            index = i\n    return index",
     "examLabel": "2016年3月5日"
   },
   {
     "id": "2016_03_03",
-    "stem": "def f1(a, value):\n    r_value = -1\n    i = 0\n    while i < 100:\n        n1 += 1\n        if a[i] == value:\n            r_value = i\n            break\n        i = i + 1\n    return r_value\n\ndef f2(a, value):\n    r_value = -1\n    low = 0\n    high = 99\n    while low <= high:\n        n2 += 1\n        mid = (low + high) // 2\n        if a[mid] == value:\n            r_value = mid\n            break\n        elif a[mid] < value:\n            low = mid + 1\n        else:\n            high = mid - 1\n    return r_value\n給定一整數列表 a[0]、a[1]、...、a[99] 且 a[k]=3k+1，以 value=100 呼叫以上兩函式，假設函式 f1 及 f2 之 while 迴圈主體分別執行 n1 與 n2 次（也就是說計算 if 敘述執行次數，不包含 elif 敘述），請問 n1 與 n2 之值為何？只取整數部分。",
+    "stem": "給定一整數列表 a[0]、a[1]、...、a[99] 且 a[k]=3k+1，以 value=100 呼叫以上兩函式，假設函式 f1 及 f2 之 while 迴圈主體分別執行 n1 與 n2 次（也就是說計算 if 敘述執行次數，不包含 elif 敘述），請問 n1 與 n2 之值為何？只取整數部分。",
     "options": {
       "A": "n1=33, n2=4",
       "B": "n1=33, n2=5",
@@ -2623,11 +2634,12 @@
     "explanation": "value=100 對應 k=33（因為 a[33]=3*33+1=100），f1 需線性掃描到 i=33 才找到（迴圈執行 34 次，含找到當次）；f2 為二分搜尋，需要 5 次迭代才會找到 mid=33。",
     "topic": "條件式迴圈、二分搜尋",
     "difficulty": "易",
+    "code": "def f1(a, value):\n    r_value = -1\n    i = 0\n    while i < 100:\n        n1 += 1\n        if a[i] == value:\n            r_value = i\n            break\n        i = i + 1\n    return r_value\n\ndef f2(a, value):\n    r_value = -1\n    low = 0\n    high = 99\n    while low <= high:\n        n2 += 1\n        mid = (low + high) // 2\n        if a[mid] == value:\n            r_value = mid\n            break\n        elif a[mid] < value:\n            low = mid + 1\n        else:\n            high = mid - 1\n    return r_value",
     "examLabel": "2016年3月5日"
   },
   {
     "id": "2016_03_04",
-    "stem": "a = [0] * 101\nb = [i for i in range(101)]\nfor i in range(1, 101):\n    a[i] = b[i] + a[i - 1]\nprint(a[50] - a[30])\n經過運算後，右側程式的輸出為何？",
+    "stem": "經過運算後，右側程式的輸出為何？",
     "options": {
       "A": "1275",
       "B": "20",
@@ -2638,11 +2650,12 @@
     "explanation": "a[i] 是 b[1]+b[2]+...+b[i] 的累加和，所以 a[50]-a[30] = b[31]+b[32]+...+b[50] = 31+32+...+50 = 810。",
     "topic": "陣列差",
     "difficulty": "中",
+    "code": "a = [0] * 101\nb = [i for i in range(101)]\nfor i in range(1, 101):\n    a[i] = b[i] + a[i - 1]\nprint(a[50] - a[30])",
     "examLabel": "2016年3月5日"
   },
   {
     "id": "2016_03_05",
-    "stem": "def f(n):\n    s = 0\n    if n < 2:\n        return 0\n    for i in range(1, n + 1):\n        s += i\n    s += f(2 * n // 3)\n    return s\n函數 f 定義如下，如果呼叫 f(1000)，指令 s += i 被執行的次數最接近下列何者？",
+    "stem": "函數 f 定義如下，如果呼叫 f(1000)，指令 s += i 被執行的次數最接近下列何者？",
     "options": {
       "A": "1000",
       "B": "3000",
@@ -2653,6 +2666,7 @@
     "explanation": "每層遞迴的 for 迴圈執行次數約等於當時的 n，n 依序為 1000, 666, 444, 296, 197, 131, 87...，將這些數字加總，總次數最接近 3000。",
     "topic": "函式、遞迴",
     "difficulty": "中",
+    "code": "def f(n):\n    s = 0\n    if n < 2:\n        return 0\n    for i in range(1, n + 1):\n        s += i\n    s += f(2 * n // 3)\n    return s",
     "examLabel": "2016年3月5日"
   },
   {
@@ -2668,11 +2682,12 @@
     "explanation": "current 為 a，list[current].next 指向 b。由於 list[current].next 的 next（即 b 的 next）不是 -1（串列尚未結束），所以要把 list[current].next 設定為「b 的 next」，也就是 list[current].next = list[list[current].next].next，這樣 a 就會直接指向 c，達成刪除 b 的效果。",
     "topic": "資料結構、鏈結串列",
     "difficulty": "難",
+    "code": null,
     "examLabel": "2016年3月5日"
   },
   {
     "id": "2016_03_07",
-    "stem": "def a(n, m):\n    if n < 10:\n        if m < 10:\n            return n + m\n        else:\n            return a(n, m - 2) + m\n    else:\n        return a(n - 1, m) + n\n請問以 a(13,15) 呼叫右側 a() 函式，函式執行完後其回傳值為何？",
+    "stem": "請問以 a(13,15) 呼叫右側 a() 函式，函式執行完後其回傳值為何？",
     "options": {
       "A": "90",
       "B": "103",
@@ -2683,11 +2698,12 @@
     "explanation": "遞迴展開：a(13,15)=a(12,15)+13=a(11,15)+12+13=...一路展開至 a(9,9)+11+13+15，最終累加結果為 103。",
     "topic": "函式、遞迴",
     "difficulty": "中",
+    "code": "def a(n, m):\n    if n < 10:\n        if m < 10:\n            return n + m\n        else:\n            return a(n, m - 2) + m\n    else:\n        return a(n - 1, m) + n",
     "examLabel": "2016年3月5日"
   },
   {
     "id": "2016_03_08",
-    "stem": "a = 0\nb = 1\ni, temp, N = 0, 0, 0\n# ...\nfor i in range(2, N + 1):\n    temp = b\n    ________  # (a)\n    a = temp\n    print(________)  # (b)\n一個費氏數列定義第一個數為0第二個數為1，之後的每個數都等於前兩個數相加，如下所示：0、1、1、2、3、5、8、13、21、34、55、89…。右列的程式用以計算第 N 個(N≥2)費氏數列的數值，請問(a)與(b)兩個空格的敘述(statement)應該為何?",
+    "stem": "一個費氏數列定義第一個數為0第二個數為1，之後的每個數都等於前兩個數相加，如下所示：0、1、1、2、3、5、8、13、21、34、55、89…。右列的程式用以計算第 N 個(N≥2)費氏數列的數值，請問(a)與(b)兩個空格的敘述(statement)應該為何?",
     "options": {
       "A": "(a) f[i]=f[i-1]+f[i-2]  (b) f[N]",
       "B": "(a) a = a + b  (b) a",
@@ -2698,11 +2714,12 @@
     "explanation": "b 先暫存於 temp，接著 (a) 應把新的 b 算出來：b = a + b，然後 a = temp（也就是舊的 b），最後印出目前的 b，即 (b) 為 b。",
     "topic": "給值、費氏數列",
     "difficulty": "中",
+    "code": "a = 0\nb = 1\ni, temp, N = 0, 0, 0\n# ...\nfor i in range(2, N + 1):\n    temp = b\n    ________  # (a)\n    a = temp\n    print(________)  # (b)",
     "examLabel": "2016年3月5日"
   },
   {
     "id": "2016_03_09",
-    "stem": "A = [0] * 5\nB = [0] * 5\ni = 0\nc = 0\nfor i in range(1, 5):\n    A[i] = 2 + i * 4\n    B[i] = i * 5\nc = 0\nfor i in range(1, 5):\n    if B[i] > A[i]:\n        c = c + (B[i] % A[i])\n    else:\n        c = 1\nprint(c)\n請問右側程式輸出為何？",
+    "stem": "請問右側程式輸出為何？",
     "options": {
       "A": "1",
       "B": "4",
@@ -2713,11 +2730,12 @@
     "explanation": "A=[_,6,10,14,18]，B=[_,5,10,15,20]。i=1: B<=A →c=1；i=2: B==A →c=1；i=3: B>A →c=1+(15%14)=2；i=4: B>A →c=2+(20%18)=4。最終輸出 4。",
     "topic": "函式、判斷、運算",
     "difficulty": "易",
+    "code": "A = [0] * 5\nB = [0] * 5\ni = 0\nc = 0\nfor i in range(1, 5):\n    A[i] = 2 + i * 4\n    B[i] = i * 5\nc = 0\nfor i in range(1, 5):\n    if B[i] > A[i]:\n        c = c + (B[i] % A[i])\n    else:\n        c = 1\nprint(c)",
     "examLabel": "2016年3月5日"
   },
   {
     "id": "2016_03_10",
-    "stem": "def g(a):\n    if a > 1:\n        return g(a - 2) + 3\n    return a\n給定右側 g() 函式，g(13) 回傳值為何？",
+    "stem": "給定右側 g() 函式，g(13) 回傳值為何？",
     "options": {
       "A": "16",
       "B": "18",
@@ -2728,11 +2746,12 @@
     "explanation": "g(13)=g(11)+3=g(9)+6=g(7)+9=g(5)+12=g(3)+15=g(1)+18=1+18=19。",
     "topic": "判斷、遞迴",
     "difficulty": "易",
+    "code": "def g(a):\n    if a > 1:\n        return g(a - 2) + 3\n    return a",
     "examLabel": "2016年3月5日"
   },
   {
     "id": "2016_03_11",
-    "stem": "i = 0\nhold = 0\nn = 0\nfor i in range(0, ________ + 1):\n    hold = a[i]\n    a[i] = a[i + 1]\n    a[i + 1] = hold\n定義 a[n] 為一陣列(array)，陣列元素的指標為0至n-1。若要將陣列中 a[0] 的元素移到 a[n-1]，右側程式片段空白處該填入何運算式？",
+    "stem": "定義 a[n] 為一陣列(array)，陣列元素的指標為0至n-1。若要將陣列中 a[0] 的元素移到 a[n-1]，右側程式片段空白處該填入何運算式？",
     "options": {
       "A": "n+1",
       "B": "n",
@@ -2743,11 +2762,12 @@
     "explanation": "透過相鄰交換把 a[0] 逐步搬到最後，迴圈需執行到 i=n-2（交換 a[n-2] 與 a[n-1]）為止，故空格應填 n-2。",
     "topic": "陣列、索引值",
     "difficulty": "易",
+    "code": "i = 0\nhold = 0\nn = 0\nfor i in range(0, ________ + 1):\n    hold = a[i]\n    a[i] = a[i + 1]\n    a[i + 1] = hold",
     "examLabel": "2016年3月5日"
   },
   {
     "id": "2016_03_12",
-    "stem": "def f1(m):\n    if m > 3:\n        print(m)\n        return\n    else:\n        print(m)\n        f2(m + 2)\n        print(m)\n\ndef f2(n):\n    if n > 3:\n        print(n)\n        return\n    else:\n        print(n)\n        f1(n - 1)\n        print(n)\n給定右側函式 f1() 及 f2()。f1(1) 運算過程中，以下敘述何者為錯？",
+    "stem": "給定右側函式 f1() 及 f2()。f1(1) 運算過程中，以下敘述何者為錯？",
     "options": {
       "A": "印出的數字最大的是4",
       "B": "f1一共被呼叫二次",
@@ -2758,11 +2778,12 @@
     "explanation": "追蹤 f1(1) 呼叫鏈：f1(1)→f2(3)→f1(2)→f2(4)。f2 只被呼叫兩次（f2(3)、f2(4)），並非三次，所以(C)敘述錯誤。",
     "topic": "函式呼叫(傳值)、變數Scope",
     "difficulty": "難",
+    "code": "def f1(m):\n    if m > 3:\n        print(m)\n        return\n    else:\n        print(m)\n        f2(m + 2)\n        print(m)\n\ndef f2(n):\n    if n > 3:\n        print(n)\n        return\n    else:\n        print(n)\n        f1(n - 1)\n        print(n)",
     "examLabel": "2016年3月5日"
   },
   {
     "id": "2016_03_13",
-    "stem": "i = 76\nj = 48\nwhile (i % j) != 0:\n    ________\n    ________\n    ________\nprint(j)\n右側程式片段擬以輾轉相除法求 i 與 j 的最大公因數。請問 while 迴圈內容何者正確？",
+    "stem": "右側程式片段擬以輾轉相除法求 i 與 j 的最大公因數。請問 while 迴圈內容何者正確？",
     "options": {
       "A": "k = i % j;  i = j;  j = k;",
       "B": "i = j;  j = k;  k = i % j;",
@@ -2773,11 +2794,12 @@
     "explanation": "輾轉相除法：先求出餘數 k = i % j，再把除數變成新的被除數（i=j），餘數變成新的除數（j=k），依序執行才會正確更新。",
     "topic": "條件式迴圈、最大公因數(GCD)",
     "difficulty": "中",
+    "code": "i = 76\nj = 48\nwhile (i % j) != 0:\n    ________\n    ________\n    ________\nprint(j)",
     "examLabel": "2016年3月5日"
   },
   {
     "id": "2016_03_14",
-    "stem": "def foo(i):\n    if i <= 5:\n        print(f\"foo: {i}\")\n    else:\n        bar(i - 10)\n\ndef bar(i):\n    if i <= 10:\n        print(f\"bar: {i}\")\n    else:\n        foo(i - 5)\n\nfoo(15106)\nbar(3091)\nfoo(6693)\n右側程式輸出為何？",
+    "stem": "右側程式輸出為何？",
     "options": {
       "A": "bar: 6\nbar: 1\nbar: 8",
       "B": "bar: 6\nfoo: 1\nbar: 3",
@@ -2788,11 +2810,12 @@
     "explanation": "foo 與 bar 交錯遞迴，每次呼叫扣15。foo(15106) 一路遞減到 bar(6)，印出 bar:6；bar(3091) 遞減到 bar(1)，印出 bar:1；foo(6693) 遞減到 bar(8)，印出 bar:8。",
     "topic": "函式呼叫(傳值)",
     "difficulty": "中",
+    "code": "def foo(i):\n    if i <= 5:\n        print(f\"foo: {i}\")\n    else:\n        bar(i - 10)\n\ndef bar(i):\n    if i <= 10:\n        print(f\"bar: {i}\")\n    else:\n        foo(i - 5)\n\nfoo(15106)\nbar(3091)\nfoo(6693)",
     "examLabel": "2016年3月5日"
   },
   {
     "id": "2016_03_15",
-    "stem": "def f(n):\n    print(n)\n    while n != 1:\n        if (n % 2) == 1:\n            n = 3 * n + 1\n        else:\n            n = n // 2\n        print(n)\n若以 f(22) 呼叫右側 f() 函式，總共會印出多少數字？",
+    "stem": "若以 f(22) 呼叫右側 f() 函式，總共會印出多少數字？",
     "options": {
       "A": "16",
       "B": "22",
@@ -2803,11 +2826,12 @@
     "explanation": "此為 Collatz 序列：22,11,34,17,52,26,13,40,20,10,5,16,8,4,2,1，共 16 個數字。",
     "topic": "函式呼叫(傳值)",
     "difficulty": "易",
+    "code": "def f(n):\n    print(n)\n    while n != 1:\n        if (n % 2) == 1:\n            n = 3 * n + 1\n        else:\n            n = n // 2\n        print(n)",
     "examLabel": "2016年3月5日"
   },
   {
     "id": "2016_03_16",
-    "stem": "count = 10\nif count > 0:\n    count = 11\nif count > 10:\n    count = 12\n    if count % 3 == 4:\n        count = 1\n    else:\n        count = 0\nelif count > 11:\n    count = 13\nelse:\n    count = 14\nif count:\n    count = 15\nelse:\n    count = 16\nprint(count)\n右側程式執行過後所輸出數值為何？",
+    "stem": "右側程式執行過後所輸出數值為何？",
     "options": {
       "A": "11",
       "B": "13",
@@ -2818,11 +2842,12 @@
     "explanation": "count 依序變為 11→12（進入第二個if）→12%3=0≠4，else分支 count=0。最後 if count（0為False）→else，count=16。",
     "topic": "判斷、布林值",
     "difficulty": "易",
+    "code": "count = 10\nif count > 0:\n    count = 11\nif count > 10:\n    count = 12\n    if count % 3 == 4:\n        count = 1\n    else:\n        count = 0\nelif count > 11:\n    count = 13\nelse:\n    count = 14\nif count:\n    count = 15\nelse:\n    count = 16\nprint(count)",
     "examLabel": "2016年3月5日"
   },
   {
     "id": "2016_03_17",
-    "stem": "TRUE = 1\nFALSE = 0\nd = [0] * 6\nval = 0\nallBig = 0\nfor i in range(1, 6):\n    d[i] = int(input())\nval = int(input())\nallBig = TRUE\nfor i in range(1, 6):\n    if d[i] > val:\n        allBig = TRUE\n    else:\n        allBig = FALSE\nif allBig == TRUE:\n    print(f\"{val} is the smallest.\")\nelse:\n    print(f\"{val} is not the smallest.\")\n右側程式片段主要功能為：輸入六個整數，檢測並印出最後一個數字是否為六個數字中最小的值。然而，這個程式是錯誤的。請問以下哪一組測試資料可以測試出程式有誤？",
+    "stem": "右側程式片段主要功能為：輸入六個整數，檢測並印出最後一個數字是否為六個數字中最小的值。然而，這個程式是錯誤的。請問以下哪一組測試資料可以測試出程式有誤？",
     "options": {
       "A": "11 12 13 14 15 3",
       "B": "11 12 13 14 25 20",
@@ -2833,6 +2858,7 @@
     "explanation": "程式邏輯只檢查「最後比較的一個 d[i]」的結果就覆蓋 allBig，並非正確判斷全部都大於 val。用 11,12,13,14,25 及 val=20 測試，最後一筆 d[5]=25>20 使 allBig=TRUE，但20其實不是最小值（因為11,12,13,14都比20小），因而暴露錯誤。",
     "topic": "陣列、變數",
     "difficulty": "易",
+    "code": "TRUE = 1\nFALSE = 0\nd = [0] * 6\nval = 0\nallBig = 0\nfor i in range(1, 6):\n    d[i] = int(input())\nval = int(input())\nallBig = TRUE\nfor i in range(1, 6):\n    if d[i] > val:\n        allBig = TRUE\n    else:\n        allBig = FALSE\nif allBig == TRUE:\n    print(f\"{val} is the smallest.\")\nelse:\n    print(f\"{val} is not the smallest.\")",
     "examLabel": "2016年3月5日"
   },
   {
@@ -2848,6 +2874,7 @@
     "explanation": "編譯器只能偵測語法錯誤（如 printf(\"Hello world！\") 少了分號），無法偵測語意錯誤（如函式名稱打錯）或邏輯錯誤（如 and 誤寫成 or）。",
     "topic": "錯誤類別",
     "difficulty": "易",
+    "code": null,
     "examLabel": "2016年3月5日"
   },
   {
@@ -2863,11 +2890,12 @@
     "explanation": "每列4個元素，每個元素佔2單位。A[1][2] 位址 = 108 + (1*4+2)*2 = 108+12 = 120。",
     "topic": "二維陣列、記憶體空間",
     "difficulty": "易",
+    "code": null,
     "examLabel": "2016年3月5日"
   },
   {
     "id": "2016_03_20",
-    "stem": "def fun(n):\n    fac = 1\n    if n >= 0:\n        fac = n * fun(n - 1)\n    return fac\n右側為一個計算 n 階乘的函式，請問該如何修改才會得到正確的結果？",
+    "stem": "右側為一個計算 n 階乘的函式，請問該如何修改才會得到正確的結果？",
     "options": {
       "A": "第2行，改為 fac = n",
       "B": "第3行，改為 if n > 0:",
@@ -2878,11 +2906,12 @@
     "explanation": "原本 if n >= 0 會讓遞迴無限往下（n=0時仍呼叫fun(-1),fun(-2)...不會停止）。改為 if n > 0，當 n=0 時直接回傳初始值 fac=1（0!=1），遞迴才會正確終止。",
     "topic": "遞迴",
     "difficulty": "難",
+    "code": "def fun(n):\n    fac = 1\n    if n >= 0:\n        fac = n * fun(n - 1)\n    return fac",
     "examLabel": "2016年3月5日"
   },
   {
     "id": "2016_03_21",
-    "stem": "for i in range(0, 11, 2):\n    print(i, end=\" \")\nprint()\n右側程式碼，執行時的輸出為何？",
+    "stem": "右側程式碼，執行時的輸出為何？",
     "options": {
       "A": "0 2 4 6 8 10",
       "B": "0 1 2 3 4 5 6 7 8 9 10",
@@ -2893,11 +2922,12 @@
     "explanation": "range(0, 11, 2) 從0開始，每次加2，直到小於11為止：0,2,4,6,8,10。",
     "topic": "迴圈(變量)、輸出",
     "difficulty": "易",
+    "code": "for i in range(0, 11, 2):\n    print(i, end=\" \")\nprint()",
     "examLabel": "2016年3月5日"
   },
   {
     "id": "2016_03_22",
-    "stem": "def f():\n    p = 2\n    while p < 2000:\n        p = 2 * p\n    return p\n右側 f() 函式執行後所回傳的值為何？",
+    "stem": "右側 f() 函式執行後所回傳的值為何？",
     "options": {
       "A": "1023",
       "B": "1024",
@@ -2908,11 +2938,12 @@
     "explanation": "p 依序為 2,4,8,...,1024,2048。當 p=1024<2000 時仍會再乘2變成2048，此時2048不小於2000，迴圈結束，回傳2048。",
     "topic": "函式、迴圈(變量)、回傳值",
     "difficulty": "易",
+    "code": "def f():\n    p = 2\n    while p < 2000:\n        p = 2 * p\n    return p",
     "examLabel": "2016年3月5日"
   },
   {
     "id": "2016_03_23",
-    "stem": "def f(n):\n    p = 0\n    i = n\n    while i >= ________(a)________:\n        p = 10 - ________(b)________ * i\n        print(p, end=\"\")\n        i = i - ________(c)________\n右側 f() 函式 (a),(b),(c) 處需分別填入哪些數字，方能使得 f(4) 輸出 2468 的結果？",
+    "stem": "右側 f() 函式 (a),(b),(c) 處需分別填入哪些數字，方能使得 f(4) 輸出 2468 的結果？",
     "options": {
       "A": "1, 2, 1",
       "B": "0, 1, 2",
@@ -2923,11 +2954,12 @@
     "explanation": "要讓 i 從4遞減到1（4次迴圈印出2,4,6,8），(a)填1（迴圈條件 i>=1），(b)填2（p=10-2*i 依序得到2,4,6,8），(c)填1（每次i遞減1）。",
     "topic": "函式、迴圈(變量)",
     "difficulty": "易",
+    "code": "def f(n):\n    p = 0\n    i = n\n    while i >= ________(a)________:\n        p = 10 - ________(b)________ * i\n        print(p, end=\"\")\n        i = i - ________(c)________",
     "examLabel": "2016年3月5日"
   },
   {
     "id": "2016_03_24",
-    "stem": "def f(n):\n    if n > 3:\n        return 1\n    elif n == 2:\n        return 3 + f(n + 1)\n    else:\n        return 1 + f(n + 1)\n\ndef g(n):\n    j = 0\n    for i in range(1, n):\n        j = j + f(i)\n    return j\n右側 g(4) 函式呼叫執行後，回傳值為何？",
+    "stem": "右側 g(4) 函式呼叫執行後，回傳值為何？",
     "options": {
       "A": "6",
       "B": "11",
@@ -2938,11 +2970,12 @@
     "explanation": "g(4) 累加 f(1)+f(2)+f(3)。f(1)=1+f(2)=1+3+f(3)=1+3+1+f(4)=1+3+1+1=6；f(2)=3+f(3)=3+1+f(4)=3+1+1=5；f(3)=1+f(4)=1+1=2。總和 6+5+2=13。",
     "topic": "函式呼叫、遞迴、回傳值",
     "difficulty": "中",
+    "code": "def f(n):\n    if n > 3:\n        return 1\n    elif n == 2:\n        return 3 + f(n + 1)\n    else:\n        return 1 + f(n + 1)\n\ndef g(n):\n    j = 0\n    for i in range(1, n):\n        j = j + f(i)\n    return j",
     "examLabel": "2016年3月5日"
   },
   {
     "id": "2016_03_25",
-    "stem": "def Mystery(x):\n    if x <= 1:\n        return x\n    else:\n        return ________\n右側 Mystery() 函式 else 部分運算式應為何，才能使得 Mystery(9) 的回傳值為 34。",
+    "stem": "右側 Mystery() 函式 else 部分運算式應為何，才能使得 Mystery(9) 的回傳值為 34。",
     "options": {
       "A": "x + Mystery(x - 1)",
       "B": "x * Mystery(x - 1)",
@@ -2953,11 +2986,12 @@
     "explanation": "這是費氏數列：Mystery(0)=0, Mystery(1)=1，之後每項等於前兩項相加。逐項計算 Mystery(2)=1,...,Mystery(9)=34，符合 Mystery(x-2)+Mystery(x-1) 的遞迴關係。",
     "topic": "函式呼叫、遞迴、費氏數列",
     "difficulty": "中",
+    "code": "def Mystery(x):\n    if x <= 1:\n        return x\n    else:\n        return ________",
     "examLabel": "2016年3月5日"
   },
   {
     "id": "2016_10_01",
-    "stem": "item = ['2', '8', '3', '1', '9']\ncount = 5\nfor a in range(0, count - 1):\n    c = a\n    t = item[a]\n    for b in range(a + 1, count):\n        if item[b] < t:\n            c = b\n            t = item[b]\n    if a == 2 and b == 3:\n        print(t, c)\n右側 F() 函式執行後，輸出為何？",
+    "stem": "右側 F() 函式執行後，輸出為何？",
     "options": {
       "A": "1 2",
       "B": "1 3",
@@ -2968,11 +3002,12 @@
     "explanation": "這是選擇排序法找最小值的過程。當 a=2 時，在 item[3]、item[4] 中找最小值：t 從 item[2]='3' 開始比較，item[3]='1' 較小則 c=3,t='1'，item[4]='9' 不比'1'小。最後迴圈結束時 b=4（不是3），但依題目條件在 a==2 and b==3 這個時間點列印，此時 t='1', c=3，故輸出 1 3。",
     "topic": "函式、陣列、迴圈、判斷",
     "difficulty": "中",
+    "code": "item = ['2', '8', '3', '1', '9']\ncount = 5\nfor a in range(0, count - 1):\n    c = a\n    t = item[a]\n    for b in range(a + 1, count):\n        if item[b] < t:\n            c = b\n            t = item[b]\n    if a == 2 and b == 3:\n        print(t, c)",
     "examLabel": "2016年10月29日"
   },
   {
     "id": "2016_10_02",
-    "stem": "def K(a, n):\n    if n >= 0:\n        return K(a, n - 1) + a[n]\n    else:\n        return 0\n\ndef G(n):\n    a = [5, 4, 3, 2, 1]\n    return K(a, n)\n給定右側 G(), K() 兩函式，執行 G(3) 後所回傳的值為何？",
+    "stem": "給定右側 G(), K() 兩函式，執行 G(3) 後所回傳的值為何？",
     "options": {
       "A": "5",
       "B": "12",
@@ -2983,11 +3018,12 @@
     "explanation": "K(a,3) = K(a,2)+a[3] = K(a,1)+a[2]+a[3] = K(a,0)+a[1]+a[2]+a[3] = K(a,-1)+a[0]+a[1]+a[2]+a[3] = 0+5+4+3+2 = 14。",
     "topic": "函式、遞迴、回傳值",
     "difficulty": "中",
+    "code": "def K(a, n):\n    if n >= 0:\n        return K(a, n - 1) + a[n]\n    else:\n        return 0\n\ndef G(n):\n    a = [5, 4, 3, 2, 1]\n    return K(a, n)",
     "examLabel": "2016年10月29日"
   },
   {
     "id": "2016_10_03",
-    "stem": "a = 2\nb = 3\nc = 4\nd = 5\nval = b // a + c // b + d // b\nprint(val)\n右側程式碼執行後輸出結果為何？",
+    "stem": "右側程式碼執行後輸出結果為何？",
     "options": {
       "A": "3",
       "B": "4",
@@ -2998,11 +3034,12 @@
     "explanation": "b//a = 3//2 = 1，c//b = 4//3 = 1，d//b = 5//3 = 1，總和 1+1+1 = 3。",
     "topic": "變數、運算",
     "difficulty": "易",
+    "code": "a = 2\nb = 3\nc = 4\nd = 5\nval = b // a + c // b + d // b\nprint(val)",
     "examLabel": "2016年10月29日"
   },
   {
     "id": "2016_10_04",
-    "stem": "a = [1, 3, 5, 7, 9, 8, 6, 4, 2]\nn = 9\nfor i in range(0, n):\n    tmp = a[i]\n    a[i] = a[n - i - 1]\n    a[n - i - 1] = tmp\nfor i in range(0, n // 2 + 1):\n    print(a[i], a[n - i - 1], end=\" \")\n右側程式碼執行後輸出結果為何？",
+    "stem": "右側程式碼執行後輸出結果為何？",
     "options": {
       "A": "2 4 6 8 9 7 5 3 1",
       "B": "1 3 5 7 9 2 4 6 8",
@@ -3013,11 +3050,12 @@
     "explanation": "第一個迴圈把陣列前後完全反轉了兩次（來回交換9次），實際上等於沒變化再變回去，所以a仍是[1,3,5,7,9,8,6,4,2]的反轉，也就是[2,4,6,8,9,7,5,3,1]，反轉完後再反轉一次變回原陣列[1,3,5,7,9,8,6,4,2]。第二個迴圈印出 a[i] 與 a[n-i-1] 配對，結果會印出1到9再加上重複的9，即 1 2 3 4 5 6 7 8 9 9。",
     "topic": "一維陣列、索引值、SWAP觀念",
     "difficulty": "易",
+    "code": "a = [1, 3, 5, 7, 9, 8, 6, 4, 2]\nn = 9\nfor i in range(0, n):\n    tmp = a[i]\n    a[i] = a[n - i - 1]\n    a[n - i - 1] = tmp\nfor i in range(0, n // 2 + 1):\n    print(a[i], a[n - i - 1], end=\" \")",
     "examLabel": "2016年10月29日"
   },
   {
     "id": "2016_10_05",
-    "stem": "def F(a):\n    if 條件:\n        return 1\n    else:\n        return F(a - 2) + F(a - 3)\n右側函式以 F(7) 呼叫後回傳值為 12，則 <condition> 應為何？",
+    "stem": "右側函式以 F(7) 呼叫後回傳值為 12，則 <condition> 應為何？",
     "options": {
       "A": "a < 3",
       "B": "a < 2",
@@ -3028,11 +3066,12 @@
     "explanation": "分別代入 a<3、a<2、a<1、a<0 展開遞迴樹計算 F(7) 的值，只有當 condition 為 a<0（即遞迴到負數才停止）時，展開後累加的值恰好等於 12。",
     "topic": "函式、遞迴、判斷",
     "difficulty": "中",
+    "code": "def F(a):\n    if 條件:\n        return 1\n    else:\n        return F(a - 2) + F(a - 3)",
     "examLabel": "2016年10月29日"
   },
   {
     "id": "2016_10_06",
-    "stem": "a = 0\nn = int(input())\nfor i in range(1, n + 1):\n    for j in range(i, n + 1):\n        for k in range(1, n + 1):\n            a = a + 1\n若 n 為正整數，右側程式三個迴圈執行完畢後 a 值將為何？",
+    "stem": "若 n 為正整數，右側程式三個迴圈執行完畢後 a 值將為何？",
     "options": {
       "A": "n(n+1) / 2",
       "B": "n³ / 2",
@@ -3043,6 +3082,7 @@
     "explanation": "最內層迴圈固定執行 n 次。中間層 j 從 i 到 n，共執行 (n-i+1) 次。最外層 i 從 1 到 n，總執行次數為 n * sum_{i=1}^{n}(n-i+1) = n * (n(n+1)/2) = n²(n+1)/2。",
     "topic": "巢狀迴圈",
     "difficulty": "中",
+    "code": "a = 0\nn = int(input())\nfor i in range(1, n + 1):\n    for j in range(i, n + 1):\n        for k in range(1, n + 1):\n            a = a + 1",
     "examLabel": "2016年10月29日"
   },
   {
@@ -3058,11 +3098,12 @@
     "explanation": "二分搜尋法要求資料必須事先排序好。選項B「3,1,4,5,9」並非由小到大（或由大到小）排列，因此無法直接使用二分搜尋法。",
     "topic": "二分搜尋法",
     "difficulty": "易",
+    "code": null,
     "examLabel": "2016年10月29日"
   },
   {
     "id": "2016_10_08",
-    "stem": "if s >= 90:\n    print(\"A\")\nelif s >= 80:\n    print(\"B\")\nelif s > 60:\n    print(\"D\")\nelif s > 70:\n    print(\"C\")\nelse:\n    print(\"F\")\n右側是依據分數 s 評定等第的程式碼片段，正確的等第公式應為：90~100判為A等，80~89判為B等，70~79判為C等，60~69判為D等，0~59判為F等。這段程式碼在處理0~100的分數時，有幾個分數的等第是錯的？",
+    "stem": "右側是依據分數 s 評定等第的程式碼片段，正確的等第公式應為：90~100判為A等，80~89判為B等，70~79判為C等，60~69判為D等，0~59判為F等。這段程式碼在處理0~100的分數時，有幾個分數的等第是錯的？",
     "options": {
       "A": "20",
       "B": "11",
@@ -3073,11 +3114,12 @@
     "explanation": "因為 elif s > 60 排在 elif s > 70 之前，導致71~79分（應為C）會先被 s>60 攔截而錯判為D，共9個分數(71~79)判錯；另外60分本身正確判為D不算錯。仔細檢查後共有11個分數等第判斷錯誤。",
     "topic": "條件判斷、if-elif",
     "difficulty": "中",
+    "code": "if s >= 90:\n    print(\"A\")\nelif s >= 80:\n    print(\"B\")\nelif s > 60:\n    print(\"D\")\nelif s > 70:\n    print(\"C\")\nelse:\n    print(\"F\")",
     "examLabel": "2016年10月29日"
   },
   {
     "id": "2016_10_09",
-    "stem": "def k(p, v):\n    if p[v] != v:\n        p[v] = k(p, p[v])\n    return p[v]\n\ndef g(p, l, r):\n    a = k(p, l)\n    b = k(p, r)\n    if a != b:\n        p[b] = a\n\np = [0, 1, 2, 3, 4]\ng(p, 0, 1)\ng(p, 2, 4)\ng(p, 0, 4)\nprint(p)\n右側主程式執行完三次 g() 的呼叫後，p 陣列中有幾個元素的值為 0？",
+    "stem": "右側主程式執行完三次 g() 的呼叫後，p 陣列中有幾個元素的值為 0？",
     "options": {
       "A": "1",
       "B": "2",
@@ -3088,11 +3130,12 @@
     "explanation": "這是聯集查找（union-find）的操作。依序執行 g(p,0,1)、g(p,2,4)、g(p,0,4) 後，追蹤 p 陣列的變化，最終會有3個元素的值變成0。",
     "topic": "函式、遞迴、陣列",
     "difficulty": "中",
+    "code": "def k(p, v):\n    if p[v] != v:\n        p[v] = k(p, p[v])\n    return p[v]\n\ndef g(p, l, r):\n    a = k(p, l)\n    b = k(p, r)\n    if a != b:\n        p[b] = a\n\np = [0, 1, 2, 3, 4]\ng(p, 0, 1)\ng(p, 2, 4)\ng(p, 0, 4)\nprint(p)",
     "examLabel": "2016年10月29日"
   },
   {
     "id": "2016_10_10",
-    "stem": "maze = [\n    [1, 1, 1, 1, 1],\n    [1, 0, 1, 0, 1],\n    [1, 1, 0, 0, 1],\n    [1, 0, 0, 1, 1],\n    [1, 1, 1, 1, 1],\n]\ncount = 0\nfor i in range(1, 4):\n    for j in range(1, 4):\n        dir = [[-1, 0], [0, 1], [1, 0], [0, -1]]\n        for d in range(4):\n            if maze[i + dir[d][0]][j + dir[d][1]] == 1:\n                count = count + 1\nprint(count)\n右側程式片段執行後，count 的值為何？",
+    "stem": "右側程式片段執行後，count 的值為何？",
     "options": {
       "A": "36",
       "B": "20",
@@ -3103,11 +3146,12 @@
     "explanation": "對迷宮中每個內部格子(i,j)，檢查上右下左四個方向是否為牆(值為1)，逐一累加。逐格計算後總數為20。",
     "topic": "二維陣列、方向陣列",
     "difficulty": "中",
+    "code": "maze = [\n    [1, 1, 1, 1, 1],\n    [1, 0, 1, 0, 1],\n    [1, 1, 0, 0, 1],\n    [1, 0, 0, 1, 1],\n    [1, 1, 1, 1, 1],\n]\ncount = 0\nfor i in range(1, 4):\n    for j in range(1, 4):\n        dir = [[-1, 0], [0, 1], [1, 0], [0, -1]]\n        for d in range(4):\n            if maze[i + dir[d][0]][j + dir[d][1]] == 1:\n                count = count + 1\nprint(count)",
     "examLabel": "2016年10月29日"
   },
   {
     "id": "2016_10_11",
-    "stem": "a = 5\ni = 0\nwhile i < 20:\n    i = i + a\n    print(i, end=\" \")\n    i = i + 1\n右側程式片段執行過程中的輸出為何？",
+    "stem": "右側程式片段執行過程中的輸出為何？",
     "options": {
       "A": "5 10 15 20",
       "B": "5 11 17 23",
@@ -3118,11 +3162,12 @@
     "explanation": "i=0: i=0+5=5,印出5,再i=5+1=6。i=6<20: i=6+5=11,印出11,i=11+1=12。i=12<20: i=12+5=17,印出17,i=17+1=18。i=18<20: i=18+5=23,印出23,i=23+1=24。i=24不小於20，結束。輸出：5 11 17 23。",
     "topic": "迴圈、變數追蹤",
     "difficulty": "中",
+    "code": "a = 5\ni = 0\nwhile i < 20:\n    i = i + a\n    print(i, end=\" \")\n    i = i + 1",
     "examLabel": "2016年10月29日"
   },
   {
     "id": "2016_10_12",
-    "stem": "x, y, z = True, True, False\n假設 x,y,z 為布林(boolean)變數，且 x=True, y=True, z=False。請問下面各布林運算式：\nnot (y or z) or x\nnot y or (z or not x)\nz or (x and (y or z))\n(x or x) and z\n真假值依序為何？",
+    "stem": "假設 x, y, z 為布林(boolean)變數，且 x=True, y=True, z=False。請問下面各布林運算式的真假值依序為何？",
     "options": {
       "A": "True False True False",
       "B": "False False True False",
@@ -3133,11 +3178,12 @@
     "explanation": "第1式：not(True or False) or True = not True or True = False or True = True。第2式：not True or (False or not True) = False or (False or False) = False。第3式：False or (True and (True or False)) = False or True = True。第4式：(True or True) and False = True and False = False。依序為 True False True False。",
     "topic": "布林運算",
     "difficulty": "易",
+    "code": "x, y, z = True, True, False\n\nnot (y or z) or x\nnot y or (z or not x)\nz or (x and (y or z))\n(x or x) and z",
     "examLabel": "2016年10月29日"
   },
   {
     "id": "2016_10_13",
-    "stem": "i, sum = 0, 0\narr = [0] * 10\nfor i in range(10):\n    arr[i] = i\nsum = 0\nfor i in range(1, 9):\n    sum = sum - arr[i - 1] + arr[i] + arr[i + 1]\nprint(sum)\n右側程式片段執行過程的輸出為何？",
+    "stem": "右側程式片段執行過程的輸出為何？",
     "options": {
       "A": "44",
       "B": "52",
@@ -3148,11 +3194,12 @@
     "explanation": "arr = [0,1,2,...,9]。逐次累加 sum = sum - arr[i-1] + arr[i] + arr[i+1]，i 從1到8，逐項計算後最終 sum = 52。",
     "topic": "陣列、累加",
     "difficulty": "中",
+    "code": "i, sum = 0, 0\narr = [0] * 10\nfor i in range(10):\n    arr[i] = i\nsum = 0\nfor i in range(1, 9):\n    sum = sum - arr[i - 1] + arr[i] + arr[i + 1]\nprint(sum)",
     "examLabel": "2016年10月29日"
   },
   {
     "id": "2016_10_14",
-    "stem": "def G(a, x):\n    if x == 0:\n        return 1\n    else:\n        return ________(a)________\n已知當 a 固定為2，不同的變數 x 值會有不同的回傳值如下表所示：\nx=0 → 1\nx=1 → 6\nx=2 → 36\nx=3 → 216\nx=4 → 1296\nx=5 → 7776\n右側 G() 應為一支遞迴函式，請找出 G() 函式中 (a) 處的計算式該為何？",
+    "stem": "已知當 a 固定為2，不同的變數 x 值會有不同的回傳值如下表所示：\n\nx=0 → 1\nx=1 → 6\nx=2 → 36\nx=3 → 216\nx=4 → 1296\nx=5 → 7776\n\n右側 G() 應為一支遞迴函式，請找出 G() 函式中 (a) 處的計算式該為何？",
     "options": {
       "A": "((2*a)+2) * G(a, x - 1)",
       "B": "(a+5) * G(a-1, x - 1)",
@@ -3163,6 +3210,7 @@
     "explanation": "當 a=2 時每次遞迴要乘以6（因為7776=6^5）。((2*a)+2) 在 a=2 時等於 6，符合每層遞迴的乘數，故答案為A。",
     "topic": "函式、遞迴",
     "difficulty": "中",
+    "code": "def G(a, x):\n    if x == 0:\n        return 1\n    else:\n        return ________(a)________",
     "examLabel": "2016年10月29日"
   },
   {
@@ -3178,11 +3226,12 @@
     "explanation": "D02A(16)換算成10進位為 53290，加上5487得到58777(10進位)，換算成8進位為162631。",
     "topic": "進位轉換",
     "difficulty": "中",
+    "code": null,
     "examLabel": "2016年10月29日"
   },
   {
     "id": "2016_10_16",
-    "stem": "def G(B):\n    B = B * B\n    return B\n\nA, m = 0, 5\nA = G(m)\nif m < 10:\n    A = G(m) + A\nelse:\n    A = G(m)\nprint(A)\n右側程式執行後輸出為何？",
+    "stem": "右側程式執行後輸出為何？",
     "options": {
       "A": "0",
       "B": "10",
@@ -3193,11 +3242,12 @@
     "explanation": "A = G(5) = 25。因為 m=5<10，所以 A = G(5) + A = 25 + 25 = 50。",
     "topic": "函式、判斷",
     "difficulty": "易",
+    "code": "def G(B):\n    B = B * B\n    return B\n\nA, m = 0, 5\nA = G(m)\nif m < 10:\n    A = G(m) + A\nelse:\n    A = G(m)\nprint(A)",
     "examLabel": "2016年10月29日"
   },
   {
     "id": "2016_10_17",
-    "stem": "for i in range(4):\n    for j in range(i):\n        print(\" \", end=\"\")\n    k = 6 - 2 * i\n    while ________(a)________:\n        print(\"*\", end=\"\")\n        k = k - 1\n    print()\n右側程式片段中執行後若要印出下列列圖案：\ni=0 印6個*\ni=1 印4個*\ni=2 印2個*\ni=3 印0個*\n(a) 的條件判斷式該如何設定？",
+    "stem": "右側程式片段中執行後若要印出下列列圖案：\ni=0 印6個*\ni=1 印4個*\ni=2 印2個*\ni=3 印0個*\n(a) 的條件判斷式該如何設定？",
     "options": {
       "A": "k > 2",
       "B": "k > 1",
@@ -3208,11 +3258,12 @@
     "explanation": "k 初始值依i為6,4,2,0，要讓迴圈分別印出6,4,2,0個星號，條件必須是 k > 0（當k=0時，即i=3的情況，迴圈完全不執行，符合印0個*）。",
     "topic": "巢狀迴圈、圖形列印",
     "difficulty": "易",
+    "code": "for i in range(4):\n    for j in range(i):\n        print(\" \", end=\"\")\n    k = 6 - 2 * i\n    while ________(a)________:\n        print(\"*\", end=\"\")\n        k = k - 1\n    print()",
     "examLabel": "2016年10月29日"
   },
   {
     "id": "2016_10_18",
-    "stem": "def G(a):\n    print(a, end=\" \")\n    if a >= 3:\n        return\n    else:\n        G(a + 1)\n    print(a, end=\" \")\n給定右側 G() 函式，執行 G(1) 後所輸出的值為何？",
+    "stem": "給定右側 G() 函式，執行 G(1) 後所輸出的值為何？",
     "options": {
       "A": "1 2 3",
       "B": "1 2 3 2 1",
@@ -3223,11 +3274,12 @@
     "explanation": "G(1)印出1，呼叫G(2)印出2，呼叫G(3)印出3後因a>=3直接return（不會印出第二次3）。回到G(2)印出2，回到G(1)印出1。輸出：1 2 3 2 1。",
     "topic": "遞迴、函式呼叫",
     "difficulty": "易",
+    "code": "def G(a):\n    print(a, end=\" \")\n    if a >= 3:\n        return\n    else:\n        G(a + 1)\n    print(a, end=\" \")",
     "examLabel": "2016年10月29日"
   },
   {
     "id": "2016_10_19",
-    "stem": "Total, Paid, Change = 0, 0, 0\n# ...\nChange = Paid - Total\nprint(f\"500 : {(Change - Change % 500)//500} pieces\")\nChange = Change % 500\nprint(f\"100 : {(Change - Change % 100)//100} coins\")\nChange = Change % 100\n# A區\nprint(f\"50 : {(Change - Change % 50)//50} coins\")\nChange = Change % 50\n# B區\nprint(f\"10 : {(Change - Change % 10)//10} coins\")\nChange = Change % 10\n# C區\nprint(f\"5 : {(Change - Change % 5)//5} coins\")\nChange = Change % 5\n# D區\nprint(f\"1 : {(Change - Change % 1)//1} coins\")\nChange = Change % 1\n下列程式碼是自動計算找零程式的一部分，程式碼中三個主要變數分別為 Total(購買總額)，Paid(實際支付金額)，Change(找零金額)。但是此程式片段有冗餘的程式碼，請找出冗餘程式碼的區塊。",
+    "stem": "下列程式碼是自動計算找零程式的一部分，程式碼中三個主要變數分別為 Total(購買總額)，Paid(實際支付金額)，Change(找零金額)。但是此程式片段有冗餘的程式碼，請找出冗餘程式碼的區塊。",
     "options": {
       "A": "冗餘程式碼在A區",
       "B": "冗餘程式碼在B區",
@@ -3238,11 +3290,12 @@
     "explanation": "D區處理面額1的找零，任何數字對1取整除等於自身、對1取餘數必為0，因此 D區的計算對結果完全沒有影響，是多餘的程式碼。",
     "topic": "程式邏輯、冗餘程式碼",
     "difficulty": "中",
+    "code": "Total, Paid, Change = 0, 0, 0\n# ...\nChange = Paid - Total\nprint(f\"500 : {(Change - Change % 500)//500} pieces\")\nChange = Change % 500\nprint(f\"100 : {(Change - Change % 100)//100} coins\")\nChange = Change % 100\n# A區\nprint(f\"50 : {(Change - Change % 50)//50} coins\")\nChange = Change % 50\n# B區\nprint(f\"10 : {(Change - Change % 10)//10} coins\")\nChange = Change % 10\n# C區\nprint(f\"5 : {(Change - Change % 5)//5} coins\")\nChange = Change % 5\n# D區\nprint(f\"1 : {(Change - Change % 1)//1} coins\")\nChange = Change % 1",
     "examLabel": "2016年10月29日"
   },
   {
     "id": "2016_10_20",
-    "stem": "def G(a, x):\n    if x == 0:\n        return 1\n    else:\n        return ((2 * a) + 2) * G(a, x - 1)\n右側 G() 應為一支遞迴函式，已知當 a 固定為2，不同的變數 x 值會有不同的回傳值如下表所示。",
+    "stem": "右側 G() 應為一支遞迴函式，已知當 a 固定為2，不同的變數 x 值會有不同的回傳值如下表所示。",
     "options": {
       "A": "((2*a)+2) * G(a, x-1)",
       "B": "(a+5) * G(a-1, x-1)",
@@ -3253,11 +3306,12 @@
     "explanation": "此題與第14題相同（重複收錄於原簡報），驗證答案一致為 A。",
     "topic": "函式、遞迴",
     "difficulty": "中",
+    "code": "def G(a, x):\n    if x == 0:\n        return 1\n    else:\n        return ((2 * a) + 2) * G(a, x - 1)",
     "examLabel": "2016年10月29日"
   },
   {
     "id": "2016_10_21",
-    "stem": "def G(a, x):\n    if x == 0:\n        return 1\n    else:\n        return a * G(a, x - 1)\n右側 G() 為遞迴函式，G(3, 7) 執行後回傳值為何？",
+    "stem": "右側 G() 為遞迴函式，G(3, 7) 執行後回傳值為何？",
     "options": {
       "A": "128",
       "B": "2187",
@@ -3268,11 +3322,12 @@
     "explanation": "G(3,7) 計算的是 3 的 7 次方，3^7 = 2187。",
     "topic": "函式、遞迴、次方運算",
     "difficulty": "中",
+    "code": "def G(a, x):\n    if x == 0:\n        return 1\n    else:\n        return a * G(a, x - 1)",
     "examLabel": "2016年10月29日"
   },
   {
     "id": "2016_10_22",
-    "stem": "import math\ndef search(x, y, z):\n    if x < y:\n        t = math.ceil((x + y) / 2)\n        if z >= t:\n            search(t, y, z)\n        else:\n            search(x, t - 1, z)\n右側函式若以 search(1, 10, 3) 呼叫時，search 函式總共會被執行幾次？（ceiling()為無條件進位至整數位，例如ceiling(3.1)=4, ceiling(3.9)=4）",
+    "stem": "右側函式若以 search(1, 10, 3) 呼叫時，search 函式總共會被執行幾次？（ceiling()為無條件進位至整數位，例如ceiling(3.1)=4, ceiling(3.9)=4）",
     "options": {
       "A": "2",
       "B": "3",
@@ -3283,11 +3338,12 @@
     "explanation": "這是二分搜尋的遞迴呼叫過程：search(1,10,3)→search(1,5,3)→search(1,3,3)→search(2,3,3)，加上最初呼叫共執行4次。",
     "topic": "遞迴、二分搜尋",
     "difficulty": "中",
+    "code": "import math\ndef search(x, y, z):\n    if x < y:\n        t = math.ceil((x + y) / 2)\n        if z >= t:\n            search(t, y, z)\n        else:\n            search(x, t - 1, z)",
     "examLabel": "2016年10月29日"
   },
   {
     "id": "2017_03_01",
-    "stem": "給定一個1x8的陣列A，A={0,2,4,6,8,10,12,14}。右側函式Search(x)真正目的是找到A之中大於x的最小值。然而，這個函式有誤。請問下列哪個函式呼叫可測出函式有誤？\n\n```python\nA = [0, 2, 4, 6, 8, 10, 12, 14]\ndef Search(x):\n    high = 7\n    low = 0\n    while high > low:\n        mid = (high + low) // 2\n        if A[mid] <= x:\n            low = mid + 1\n        else:\n            high = mid\n    return A[high]\n```",
+    "stem": "給定一個1x8的陣列A，A={0,2,4,6,8,10,12,14}。右側函式Search(x)真正目的是找到A之中大於x的最小值。然而，這個函式有誤。請問下列哪個函式呼叫可測出函式有誤？",
     "options": {
       "A": "Search(-1)",
       "B": "Search(0)",
@@ -3298,11 +3354,12 @@
     "explanation": "當呼叫Search(16)時，陣列中沒有大於16的元素，binary search執行到high會停在最後一個索引，回傳A[7]=14，但14並不大於16，顯示函式有誤（找不到正確答案卻仍回傳一個值）。",
     "topic": "二分搜尋法",
     "difficulty": "難",
+    "code": "A = [0, 2, 4, 6, 8, 10, 12, 14]\ndef Search(x):\n    high = 7\n    low = 0\n    while high > low:\n        mid = (high + low) // 2\n        if A[mid] <= x:\n            low = mid + 1\n        else:\n            high = mid\n    return A[high]",
     "examLabel": "2017年3月4日"
   },
   {
     "id": "2017_03_02",
-    "stem": "右側F()函式為遞迴函式，A1、A2函式呼叫F()方式不同。請問下列敘述何者正確？\n\n```python\ndef F(x):\n    for i in range(x):\n        print(\"*\", end=\"\")\n    if x > 1:\n        F(x // 2)\n        F(x // 2)\n\ndef A1(n):\n    F(n // 5)\n    F(4 * n // 5)\n\ndef A2(n):\n    F(2 * n // 5)\n    F(3 * n // 5)\n```",
+    "stem": "右側F()函式為遞迴函式，A1、A2函式呼叫F()方式不同。請問下列敘述何者正確？",
     "options": {
       "A": "A1(5)印的'*'個數比A2(5)多",
       "B": "A1(13)印的'*'個數比A2(13)多",
@@ -3313,11 +3370,12 @@
     "explanation": "計算後A2(15)印出的'*'個數與A1(15)相同（皆為49個），因此「A2(15)比A1(15)多」這個敘述是錯的，為正確答案（此類題型選出敘述不成立的選項）。",
     "topic": "遞迴函式",
     "difficulty": "難",
+    "code": "def F(x):\n    for i in range(x):\n        print(\"*\", end=\"\")\n    if x > 1:\n        F(x // 2)\n        F(x // 2)\n\ndef A1(n):\n    F(n // 5)\n    F(4 * n // 5)\n\ndef A2(n):\n    F(2 * n // 5)\n    F(3 * n // 5)",
     "examLabel": "2017年3月4日"
   },
   {
     "id": "2017_03_03",
-    "stem": "右側F()函式回傳運算式該如何寫，才會使得F(14)的回傳值為40?\n\n```python\ndef F(n):\n    if n < 4:\n        return n\n    else:\n        return ___\n```",
+    "stem": "右側F()函式回傳運算式該如何寫，才會使得F(14)的回傳值為40?",
     "options": {
       "A": "n*F(n-1)",
       "B": "n+F(n-3)",
@@ -3328,11 +3386,12 @@
     "explanation": "使用 n+F(n-3)：F(14)=14+F(11)=14+11+F(8)=14+11+8+F(5)=14+11+8+5+F(2)=14+11+8+5+2=40，符合題目要求。",
     "topic": "遞迴函式",
     "difficulty": "中",
+    "code": "def F(n):\n    if n < 4:\n        return n\n    else:\n        return ___",
     "examLabel": "2017年3月4日"
   },
   {
     "id": "2017_03_04",
-    "stem": "右側函式兩個回傳式分別該如何撰寫，才能正確計算並回傳兩參數a,b之最大公因數(GCD)?\n\n```python\ndef GCD(a, b):\n    r = a % b\n    if r == 0:\n        return ___\n    return ___\n```",
+    "stem": "右側函式兩個回傳式分別該如何撰寫，才能正確計算並回傳兩參數a,b之最大公因數(GCD)?",
     "options": {
       "A": "a, GCD(b,r)",
       "B": "b, GCD(b,r)",
@@ -3343,11 +3402,12 @@
     "explanation": "輾轉相除法：當餘數r為0時，最大公因數即為除數b；否則遞迴呼叫GCD(b,r)繼續計算。",
     "topic": "遞迴函式、輾轉相除法",
     "difficulty": "難",
+    "code": "def GCD(a, b):\n    r = a % b\n    if r == 0:\n        return ___\n    return ___",
     "examLabel": "2017年3月4日"
   },
   {
     "id": "2017_03_05",
-    "stem": "若A是一個可儲存n筆整數的陣列，且資料儲存於A[0]~A[n-1]。經過右側程式碼運算後，以下何者敘述不一定正確？\n\n```python\nA = [0] * n  # 已有資料\np = q = A[0]\nfor i in range(1, n):\n    if A[i] > p:\n        p = A[i]\n    if A[i] < q:\n        q = A[i]\n```",
+    "stem": "若A是一個可儲存n筆整數的陣列，且資料儲存於A[0]~A[n-1]。經過右側程式碼運算後，以下何者敘述不一定正確？",
     "options": {
       "A": "p 是 A 陣列資料中的最大值",
       "B": "q 是 A 陣列資料中的最小值",
@@ -3358,11 +3418,12 @@
     "explanation": "p用來找最大值，q用來找最小值，敘述A、B、D皆恆成立。但若陣列中所有元素皆相同，則q會等於p，因此「q < p」不一定正確。",
     "topic": "一維陣列、迴圈、判斷",
     "difficulty": "易",
+    "code": "A = [0] * n  # 已有資料\np = q = A[0]\nfor i in range(1, n):\n    if A[i] > p:\n        p = A[i]\n    if A[i] < q:\n        q = A[i]",
     "examLabel": "2017年3月4日"
   },
   {
     "id": "2017_03_06",
-    "stem": "若A[][]是一個MxN的整數陣列，右側程式片段用以計算A陣列每一列的總和，以下敘述何者正確？\n\n```python\nrowsum = 0\nfor i in range(M):\n    for j in range(N):\n        rowsum = rowsum + A[i][j]\n    print(f\"The sum of row {i} is {rowsum}.\")\n```",
+    "stem": "若A[][]是一個MxN的整數陣列，右側程式片段用以計算A陣列每一列的總和，以下敘述何者正確？",
     "options": {
       "A": "第一列總和是正確，但其他列總和不一定正確",
       "B": "程式片段在執行時會產生錯誤 (run-time error)",
@@ -3373,11 +3434,12 @@
     "explanation": "rowsum只在迴圈外初始化一次，並未在每次外層迴圈開始前重設為0，因此第一列（i=0）總和正確，但之後每一列都會累加前面所有列的值，導致總和不正確。",
     "topic": "二維陣列、迴圈、判斷",
     "difficulty": "易",
+    "code": "rowsum = 0\nfor i in range(M):\n    for j in range(N):\n        rowsum = rowsum + A[i][j]\n    print(f\"The sum of row {i} is {rowsum}.\")",
     "examLabel": "2017年3月4日"
   },
   {
     "id": "2017_03_07",
-    "stem": "若以B(5,2)呼叫右側B()函式，總共會印出幾次\"base case\"？\n\n```python\ndef B(n, k):\n    if k == 0 or k == n:\n        print(\"base case\")\n        return 1\n    return B(n-1, k-1) + B(n-1, k)\n```",
+    "stem": "若以B(5,2)呼叫右側B()函式，總共會印出幾次\"base case\"？",
     "options": {
       "A": "1",
       "B": "5",
@@ -3388,11 +3450,12 @@
     "explanation": "展開遞迴呼叫樹（巴斯卡三角形/組合數計算），統計所有到達base case（k==0或k==n）的呼叫次數，總共會呼叫到10次base case。",
     "topic": "遞迴、判斷",
     "difficulty": "難",
+    "code": "def B(n, k):\n    if k == 0 or k == n:\n        print(\"base case\")\n        return 1\n    return B(n-1, k-1) + B(n-1, k)",
     "examLabel": "2017年3月4日"
   },
   {
     "id": "2017_03_08",
-    "stem": "給定右側程式，其中s有被宣告為全域變數，請問程式執行後輸出為何？\n\n```python\ns = 1  # 全域變數\n\ndef add(a):\n    s = 6  # 區域變數，遮蔽全域變數\n    while a >= 0:\n        print(s, end=\",\")\n        s += 1\n        print(s, end=\",\")\n        a = a - 1\n\nprint(s, end=\",\")\nadd(s)\nprint(s, end=\",\")\ns = 9\nprint(s, end=\"\")\n```",
+    "stem": "給定右側程式，其中s有被宣告為全域變數，請問程式執行後輸出為何？",
     "options": {
       "A": "1,6,7,7,8,8,9",
       "B": "1,6,7,7,8,1,9",
@@ -3403,11 +3466,12 @@
     "explanation": "add()函式內宣告了區域變數s=6，遮蔽了全域變數。呼叫add(1)時，迴圈執行兩次(a=1,0)，印出6,7,7,8。函式結束後區域變數消失，全域s仍是原本的1，因此main印出1,6,7,7,8,1,9。",
     "topic": "全域變數、函式",
     "difficulty": "中",
+    "code": "s = 1  # 全域變數\n\ndef add(a):\n    s = 6  # 區域變數，遮蔽全域變數\n    while a >= 0:\n        print(s, end=\",\")\n        s += 1\n        print(s, end=\",\")\n        a = a - 1\n\nprint(s, end=\",\")\nadd(s)\nprint(s, end=\",\")\ns = 9\nprint(s, end=\"\")",
     "examLabel": "2017年3月4日"
   },
   {
     "id": "2017_03_09",
-    "stem": "右側F()函式執行時，若輸入依序為整數0,1,2,3,4,5,6,7,8,9，請問X[]陣列的元素值依順序為何？\n\n```python\ndef F():\n    X = [0] * 10\n    for i in range(10):\n        X[(i + 2) % 10] = int(input())\n```",
+    "stem": "右側F()函式執行時，若輸入依序為整數0,1,2,3,4,5,6,7,8,9，請問X[]陣列的元素值依順序為何？",
     "options": {
       "A": "0, 1, 2, 3, 4, 5, 6, 7, 8, 9",
       "B": "2, 0, 2, 0, 2, 0, 2, 0, 2, 0",
@@ -3418,11 +3482,12 @@
     "explanation": "輸入值i依序存入X[(i+2)%10]的位置，相當於整個陣列往右循環位移2格，因此輸出為8, 9, 0, 1, 2, 3, 4, 5, 6, 7。",
     "topic": "陣列、索引值",
     "difficulty": "易",
+    "code": "def F():\n    X = [0] * 10\n    for i in range(10):\n        X[(i + 2) % 10] = int(input())",
     "examLabel": "2017年3月4日"
   },
   {
     "id": "2017_03_10",
-    "stem": "若以G(100)呼叫右側函式後，n的值為何？\n\n```python\nn = 0\n\ndef K(b):\n    global n\n    n = n + 1\n    if b % 4:\n        K(b + 1)\n\ndef G(m):\n    for i in range(m):\n        K(i)\n```",
+    "stem": "若以G(100)呼叫右側函式後，n的值為何？",
     "options": {
       "A": "25",
       "B": "75",
@@ -3433,6 +3498,7 @@
     "explanation": "G(100)對i=0~99呼叫K(i)。每次呼叫K都會使n加1，若b%4不為0則繼續遞迴。依i%4的餘數不同，各自需要的呼叫次數為：餘0需1次、餘1需4次、餘2需3次、餘3需2次。i=0~99共有25組完整循環，故總次數=25*(1+4+3+2)=250。",
     "topic": "迴圈、函式",
     "difficulty": "難",
+    "code": "n = 0\n\ndef K(b):\n    global n\n    n = n + 1\n    if b % 4:\n        K(b + 1)\n\ndef G(m):\n    for i in range(m):\n        K(i)",
     "examLabel": "2017年3月4日"
   },
   {
@@ -3448,6 +3514,7 @@
     "explanation": "交換兩變數值需要借助第三個暫存變數。選項B先將A[1]存入A[3]暫存，再把A[2]存入A[1]，最後把暫存的原A[1]值(A[3])存入A[2]，正確完成交換。",
     "topic": "SWAP(交換)",
     "difficulty": "易",
+    "code": null,
     "examLabel": "2017年3月4日"
   },
   {
@@ -3463,11 +3530,12 @@
     "explanation": "選項A和C取得0~899的隨機數字，再加上100或101，最小值會是100或101，最大值會是999或1000，並不符合題目要求。選項B取得1~1000的隨機數字，最小值是1，最大值是1000，也不符合要求。選項D取得0~900的隨機數字，再加上100，最小值是100，最大值是1000，符合題目要求。",
     "topic": "亂數函式",
     "difficulty": "易",
+    "code": null,
     "examLabel": "2017年3月4日"
   },
   {
     "id": "2017_03_13",
-    "stem": "右側程式片段無法正確列印20次的\"Hi!\"，請問下列哪一個修正方式仍無法正確列印20次的\"Hi!\"？\n\n```python\nfor i in range(0, 101, 5):\n    print(\"Hi!\")\n```",
+    "stem": "右側程式片段無法正確列印20次的\"Hi!\"，請問下列哪一個修正方式仍無法正確列印20次的\"Hi!\"？",
     "options": {
       "A": "需要將 i<=100 和 i=i+5 分別修正為 i<20 和 i=i+1",
       "B": "需要將 i=0 修正為 i=5",
@@ -3478,11 +3546,12 @@
     "explanation": "原程式i從0到100，間隔5，共執行21次。選項A、B、C修正後皆能得到20次執行。選項D將起始值改為5、終止條件改為i<100，範圍變成5,10,...,95，只執行19次，因此仍無法正確列印20次。",
     "topic": "迴圈",
     "difficulty": "易",
+    "code": "for i in range(0, 101, 5):\n    print(\"Hi!\")",
     "examLabel": "2017年3月4日"
   },
   {
     "id": "2017_03_14",
-    "stem": "若以F(15)呼叫右側F()函式，總共會印出幾行數字？\n\n```python\ndef F(n):\n    print(n)\n    if n % 2 == 1 and n > 1:\n        return F(5 * n + 1)\n    else:\n        if n % 2 == 0:\n            return F(n // 2)\n```",
+    "stem": "若以F(15)呼叫右側F()函式，總共會印出幾行數字？",
     "options": {
       "A": "16行",
       "B": "22行",
@@ -3493,11 +3562,12 @@
     "explanation": "依序追蹤遞迴呼叫：15,76,38,19,96,48,24,12,6,3,16,8,4,2,1，共印出15個數字（15行），到n=1時因不滿足任一條件而結束遞迴。",
     "topic": "遞迴",
     "difficulty": "中",
+    "code": "def F(n):\n    print(n)\n    if n % 2 == 1 and n > 1:\n        return F(5 * n + 1)\n    else:\n        if n % 2 == 0:\n            return F(n // 2)",
     "examLabel": "2017年3月4日"
   },
   {
     "id": "2017_03_15",
-    "stem": "給定右側函式F()，執行F()時哪一行程式碼可能永遠不會被執行到？\n\n```python\ndef F():\n    a = 0\n    while a < 10:\n        a = a + 5\n        if a < 12:\n            a = a + 2\n        if a <= 11:\n            a = 5\n```",
+    "stem": "給定右側函式F()，執行F()時哪一行程式碼可能永遠不會被執行到？",
     "options": {
       "A": "a = a + 5;",
       "B": "a = a + 2;",
@@ -3508,11 +3578,12 @@
     "explanation": "追蹤執行過程：a從0開始，每輪先加5。當a=0時，a變成5，5<12成立a變成7；7<=11成立則a=5，再進入下一輪...實際逐步驗證後可發現a永遠不會滿足a<=11這個條件同時之前的路徑，使得\"a=5;\"這行永遠不會被執行到。",
     "topic": "函式、迴圈",
     "difficulty": "易",
+    "code": "def F():\n    a = 0\n    while a < 10:\n        a = a + 5\n        if a < 12:\n            a = a + 2\n        if a <= 11:\n            a = 5",
     "examLabel": "2017年3月4日"
   },
   {
     "id": "2017_03_16",
-    "stem": "給定右側函式F()，已知F(7)回傳值為17，且F(8)回傳值為25，請問if的條件判斷式應為何？\n\n```python\ndef F(a):\n    if ___:\n        return a * 2 + 3\n    else:\n        return a * 3 + 1\n```",
+    "stem": "給定右側函式F()，已知F(7)回傳值為17，且F(8)回傳值為25，請問if的條件判斷式應為何？",
     "options": {
       "A": "a % 2 != 1",
       "B": "a * 2 > 16",
@@ -3523,11 +3594,12 @@
     "explanation": "F(7)=17需要條件為真並執行a*2+3=7*2+3=17；F(8)=25需要條件為假並執行a*3+1=8*3+1=25。驗證選項D：7*7=49<50為真，8*8=64<50為假，符合兩者需求。",
     "topic": "遞迴",
     "difficulty": "易",
+    "code": "def F(a):\n    if ___:\n        return a * 2 + 3\n    else:\n        return a * 3 + 1",
     "examLabel": "2017年3月4日"
   },
   {
     "id": "2017_03_17",
-    "stem": "給定右側函式F()，F()執行完所回傳的x值為何？\n\n```python\nimport math\n\ndef F(n):\n    x = 0\n    for i in range(1, n + 1):\n        for j in range(i, n + 1):\n            k = 1\n            while k <= n:\n                x = x + 1\n                k = k * 2\n    return x\n```",
+    "stem": "給定右側函式F()，F()執行完所回傳的x值為何？",
     "options": {
       "A": "n(n+1)√[log2 n]",
       "B": "n²(n+1) / 2",
@@ -3538,11 +3610,12 @@
     "explanation": "外兩層迴圈（i,j）的組合總次數為等差級數 n+(n-1)+...+1 = n(n+1)/2 次；第三層迴圈k每次乘2直到超過n，執行次數為 floor(log2(n))+1 次。兩者相乘得 n(n+1)[log2(n)+1]/2。",
     "topic": "遞迴",
     "difficulty": "易",
+    "code": "import math\n\ndef F(n):\n    x = 0\n    for i in range(1, n + 1):\n        for j in range(i, n + 1):\n            k = 1\n            while k <= n:\n                x = x + 1\n                k = k * 2\n    return x",
     "examLabel": "2017年3月4日"
   },
   {
     "id": "2017_03_18",
-    "stem": "右側程式執行完畢後所輸出值為何？\n\n```python\nx = 0\nn = 5\nfor i in range(1, n + 1):\n    for j in range(1, n + 1):\n        if (i + j) == 2:\n            x = x + 2\n        if (i + j) == 3:\n            x = x + 3\n        if (i + j) == 4:\n            x = x + 4\nprint(x)\n```",
+    "stem": "右側程式執行完畢後所輸出值為何？",
     "options": {
       "A": "12",
       "B": "24",
@@ -3553,11 +3626,12 @@
     "explanation": "i+j=2的組合有1組（1,1），加2得2；i+j=3的組合有2組，加3各次共6；i+j=4的組合有3組，加4各次共12。總和為2+6+12=20。",
     "topic": "巢狀迴圈、判斷",
     "difficulty": "易",
+    "code": "x = 0\nn = 5\nfor i in range(1, n + 1):\n    for j in range(1, n + 1):\n        if (i + j) == 2:\n            x = x + 2\n        if (i + j) == 3:\n            x = x + 3\n        if (i + j) == 4:\n            x = x + 4\nprint(x)",
     "examLabel": "2017年3月4日"
   },
   {
     "id": "2017_03_19",
-    "stem": "右側程式擬找出陣列A[]中的最大值和最小值。不過，這段程式碼有誤，請問A[]初始值如何設定就可以測出程式有誤？\n\n```python\nM = -1\nN = 101\ns = 3\nA = [___, ___, ___]  # 待填入\n\nfor i in range(s):\n    if A[i] > M:\n        M = A[i]\n    elif A[i] < N:\n        N = A[i]\n\nprint(f\"M = {M}, N = {N}\")\n```",
+    "stem": "右側程式擬找出陣列A[]中的最大值和最小值。不過，這段程式碼有誤，請問A[]初始值如何設定就可以測出程式有誤？",
     "options": {
       "A": "{90, 80, 100}",
       "B": "{80, 90, 100}",
@@ -3568,11 +3642,12 @@
     "explanation": "程式使用if/elif結構，一旦A[i]>M成立就不會再檢查是否為最小值，導致某些情況下最小值判斷不正確。以{80,90,100}測試：M會正確找到100，但N會因為第一個元素80已經滿足了>M不成立、進入elif比較，之後較大的值不會再被拿來比較N，因而測出程式邏輯錯誤。",
     "topic": "Array 陣列、迴圈、判斷",
     "difficulty": "易",
+    "code": "M = -1\nN = 101\ns = 3\nA = [___, ___, ___]  # 待填入\n\nfor i in range(s):\n    if A[i] > M:\n        M = A[i]\n    elif A[i] < N:\n        N = A[i]\n\nprint(f\"M = {M}, N = {N}\")",
     "examLabel": "2017年3月4日"
   },
   {
     "id": "2017_03_20",
-    "stem": "小藍寫了一段複雜的程式碼想考考你是否了解函式的執行流程。請回答程式最後輸出的數值為何？\n\n```python\ng1, g2 = 30, 20\n\ndef f1(v):\n    g1 = 10  # 區域變數，遮蔽全域g1\n    return g1 + v\n\ndef f2(v):\n    global g1\n    c = g2  # 讀取全域g2\n    v = v + c + g1  # 讀取全域g1\n    g1 = 10  # 修改全域g1\n    c = 40\n    return v\n\ng2 = 0\ng2 = f1(g2)\nprint(f2(f2(g2)))\n```",
+    "stem": "小藍寫了一段複雜的程式碼想考考你是否了解函式的執行流程。請回答程式最後輸出的數值為何？",
     "options": {
       "A": "70",
       "B": "80",
@@ -3583,11 +3658,12 @@
     "explanation": "main先設g2=0，呼叫f1(0)：f1內有區域變數g1=10（遮蔽全域），回傳10+0=10，所以全域g2=10。接著計算f2(f2(10))：第一次f2(10)：c=g2(全域=10)，v=10+10+30(全域g1=30)=50，然後將全域g1設為10，回傳50。第二次f2(50)：c=g2(仍為10)，v=50+10+10(全域g1已被改為10)=70，回傳70。故最終輸出70。",
     "topic": "遞迴、函式、判斷",
     "difficulty": "難",
+    "code": "g1, g2 = 30, 20\n\ndef f1(v):\n    g1 = 10  # 區域變數，遮蔽全域g1\n    return g1 + v\n\ndef f2(v):\n    global g1\n    c = g2  # 讀取全域g2\n    v = v + c + g1  # 讀取全域g1\n    g1 = 10  # 修改全域g1\n    c = 40\n    return v\n\ng2 = 0\ng2 = f1(g2)\nprint(f2(f2(g2)))",
     "examLabel": "2017年3月4日"
   },
   {
     "id": "2017_03_21",
-    "stem": "若以F(5,2)呼叫右側F()函式，執行完畢後回傳值為何？\n\n```python\ndef F(x, y):\n    if x < 1:\n        return 1\n    else:\n        return F(x - y, y) + F(x - 2 * y, y)\n```",
+    "stem": "若以F(5,2)呼叫右側F()函式，執行完畢後回傳值為何？",
     "options": {
       "A": "1",
       "B": "3",
@@ -3598,6 +3674,7 @@
     "explanation": "展開遞迴呼叫樹：F(5,2)=F(3,2)+F(1,2)；F(3,2)=F(1,2)+F(-1,2)；F(1,2)=F(-1,2)+F(-3,2)。所有x<1的呼叫都回傳1。最終加總各分支回傳值可得F(5,2)=5。",
     "topic": "遞迴、函式、判斷",
     "difficulty": "難",
+    "code": "def F(x, y):\n    if x < 1:\n        return 1\n    else:\n        return F(x - y, y) + F(x - 2 * y, y)",
     "examLabel": "2017年3月4日"
   },
   {
@@ -3613,6 +3690,7 @@
     "explanation": "not(x1 or x2)為True，代表(x1 or x2)必須為False，而「或」運算只有在兩者皆為False時才為False，因此x1和x2都必須是False。",
     "topic": "邏輯、判斷式",
     "difficulty": "易",
+    "code": null,
     "examLabel": "2017年3月4日"
   },
   {
@@ -3628,6 +3706,7 @@
     "explanation": "程式執行時，變數值是存放在記憶體(RAM)中，供CPU快速存取與運算。",
     "topic": "資料儲存",
     "difficulty": "易",
+    "code": null,
     "examLabel": "2017年3月4日"
   },
   {
@@ -3643,6 +3722,7 @@
     "explanation": "由於電腦以固定（有限）數目的位元來儲存一個變數值，當運算結果超出該位元數所能表示的範圍時，就會發生溢位(overflow)。註：此題目原為C語言概念（如int為32位元整數），Python的整數為任意精度不會溢位，此處保留原始概念性題目，選項與答案不變。",
     "topic": "資料儲存",
     "difficulty": "易",
+    "code": null,
     "examLabel": "2017年3月4日"
   },
   {
@@ -3658,11 +3738,12 @@
     "explanation": "依運算子優先順序，乘法(*)優先於加減法，因此 a+b*c-e 等同於 (a+(b*c))-e，也就是先計算b*c，再與a相加，最後減去e。",
     "topic": "運算順序",
     "difficulty": "易",
+    "code": null,
     "examLabel": "2017年3月4日"
   },
   {
     "id": "2021_11_01",
-    "stem": "右側程式片段中，char z[10]、函式f(char *a, char *b)會逐一比較a、b兩字串的對應位置字元，相同則z[i]='0'、不同則z[i]='1'。已知x=\"000111110\"、y=\"110001011\"，依序呼叫f(x,y)後再呼叫f(z,y)，最後印出z。問a[??]、b[??]的??處應分別填入哪些，才能使最後輸出結果為\"000111110\"？\n\n```python\nz = ['\\0'] * 10\ndef f(a, b):\n    global z\n    for i in range(9):\n        if a[??] == b[??]:\n            z[i] = '0'\n        else:\n            z[i] = '1'\n\nx = \"000111110\"\ny = \"110001011\"\nf(x, y)\nf(z, y)\nprint(''.join(z))\n```",
+    "stem": "右側程式片段中，char z[10]、函式f(char *a, char *b)會逐一比較a、b兩字串的對應位置字元，相同則z[i]='0'、不同則z[i]='1'。已知x=\"000111110\"、y=\"110001011\"，依序呼叫f(x,y)後再呼叫f(z,y)，最後印出z。問a[??]、b[??]的??處應分別填入哪些，才能使最後輸出結果為\"000111110\"？",
     "options": {
       "A": "i, i",
       "B": "i, 8 - i",
@@ -3673,11 +3754,12 @@
     "explanation": "由於函式對x、y先做一次XOR式比較得到z，接著再用同樣的索引規則對z、y做一次比較，兩次操作會互相抵銷（z XOR y XOR y = x），因此不論索引規則採用i,i或i,8-i或8-i,i（只要兩次呼叫使用相同規則），最終結果都會等於原始的x=\"000111110\"。經實際驗證三種索引規則皆能得到正確輸出，因此三個選項都對。",
     "topic": "XOR(互斥或、異或)",
     "difficulty": "中",
+    "code": "z = ['\\0'] * 10\ndef f(a, b):\n    global z\n    for i in range(9):\n        if a[??] == b[??]:\n            z[i] = '0'\n        else:\n            z[i] = '1'\n\nx = \"000111110\"\ny = \"110001011\"\nf(x, y)\nf(z, y)\nprint(''.join(z))",
     "examLabel": "2021年11月7日"
   },
   {
     "id": "2021_11_02",
-    "stem": "右側f()函式用輾轉相除法計算兩數的最大公因數。問要如何撰寫，f函式才會回傳gcd(a,b)？\n\n```python\ndef f(a, b):\n    if b == 0:\n        return a\n    return ___\n```",
+    "stem": "右側f()函式用輾轉相除法計算兩數的最大公因數。問要如何撰寫，f函式才會回傳gcd(a,b)？",
     "options": {
       "A": "f(a, b % a)",
       "B": "f(a % b, a)",
@@ -3688,11 +3770,12 @@
     "explanation": "歐幾里得演算法(輾轉相除法)的核心概念是 gcd(a,b) = gcd(b, a % b)，當b為0時a即為最大公因數。因此應填入 f(b, a % b)。",
     "topic": "遞迴、條件、取餘、參數傳值",
     "difficulty": "易",
+    "code": "def f(a, b):\n    if b == 0:\n        return a\n    return ___",
     "examLabel": "2021年11月7日"
   },
   {
     "id": "2021_11_03",
-    "stem": "右側程式利用巢狀迴圈印出如下圖形（星星圖案），內層迴圈條件??應填入什麼？\n\n```python\nfor i in range(8):\n    for j in range(??):\n        print((i + j) % 2, end=' ')\n    print()\n```\n\n輸出圖形前7列為：\n```\n1\n0 1\n1 0 1\n0 1 0 1\n1 0 1 0 1\n0 1 0 1 0 1\n1 0 1 0 1 0 1\n```",
+    "stem": "右側程式利用巢狀迴圈印出如下圖形（星星圖案），內層迴圈條件??應填入什麼？\n\n輸出圖形前7列為：\n1\n0 1\n1 0 1\n0 1 0 1\n1 0 1 0 1\n0 1 0 1 0 1\n1 0 1 0 1 0 1",
     "options": {
       "A": "j <= i",
       "B": "j < i",
@@ -3703,41 +3786,45 @@
     "explanation": "觀察輸出圖形，第i列（i從0開始）印出i+1個數字，這代表內層迴圈j從0開始執行了i+1次，符合條件 j<=i（j可以取0到i，共i+1個值）。其餘選項無法產生正確的遞增列數（B少一次、C造成無限迴圈、D第一列不會執行）。",
     "topic": "巢狀迴圈",
     "difficulty": "易",
+    "code": "for i in range(8):\n    for j in range(??):\n        print((i + j) % 2, end=' ')\n    print()",
     "examLabel": "2021年11月7日"
   },
   {
     "id": "2021_11_04",
-    "stem": "巢狀if沒有{}配對問題。右側程式執行後，問輸出（a的值）為何？\n\n```python\nx = 4\nif x >= 2:\n    if x < 6:\n        a = 1\n    else:\n        a = 2\nelse:\n    a = 3\nprint(a)\n```",
+    "stem": "巢狀if沒有{}配對問題。右側程式執行後，問輸出（a的值）為何？",
     "options": null,
     "answer": "1",
     "explanation": "在沒有大括號配對的情況下，else會與最近的if配對。此處x=4，x>=2成立進入內層判斷，x<6成立，因此a=1。這說明巢狀if若沒有{}明確配對，else永遠對應到最近的未配對if，需特別注意程式碼的縮排並非執行依據，實際配對規則才是關鍵。",
     "topic": "變數Scope(視野)",
     "difficulty": "易",
+    "code": "x = 4\nif x >= 2:\n    if x < 6:\n        a = 1\n    else:\n        a = 2\nelse:\n    a = 3\nprint(a)",
     "examLabel": "2021年11月7日"
   },
   {
     "id": "2021_11_05",
-    "stem": "C語言的swap寫法如下（不使用第三個變數，利用加減法交換兩變數的值）：\n\n```python\ndef swap(i, j):\n    i = i + j\n    # 缺少後續步驟\n    return i, j\n```\n\n完整的加減法交換應為：\n```python\ni = 5\nj = 10\ni = i + j   # i = 5 + 10 = 15\nj = i - j   # j = 15 - 10 = 5\ni = i - j   # i = 15 - 5 = 10\nprint(f\"i = {i}, j = {j}\")  # 輸出 i = 10, j = 5\n```\n\n問：若swap函式只寫了「i = i + j」這一行，是否能正確交換i、j的值？",
+    "stem": "C語言的swap寫法如下（不使用第三個變數，利用加減法交換兩變數的值）：右側swap函式若只寫了「i = i + j」這一行，是否能正確交換i、j的值？",
     "options": null,
     "answer": "不能，只執行i=i+j這一行無法完成交換，還需要接著執行 j=i-j 和 i=i-j 兩個步驟才能得到正確交換後的i、j值。",
     "explanation": "完整的加減法交換法需要三個步驟：i=i+j（i暫存兩數之和）、j=i-j（j得到原本的i值）、i=i-j（i得到原本的j值，此時j已更新過）。只執行第一步驟時，i已改變但j仍是原值，尚未完成交換。",
     "topic": "變數Swap(交換)",
     "difficulty": "易",
+    "code": "def swap(i, j):\n    i = i + j\n    # 缺少後續步驟\n    return i, j\n\n# 完整版本應為：\ni = 5\nj = 10\ni = i + j   # i = 5 + 10 = 15\nj = i - j   # j = 15 - 10 = 5\ni = i - j   # i = 15 - 5 = 10\nprint(f\"i = {i}, j = {j}\")  # 輸出 i = 10, j = 5",
     "examLabel": "2021年11月7日"
   },
   {
     "id": "2021_11_06",
-    "stem": "switch-case落空(fall-through)問題。右側程式執行後輸出為何？\n\n```python\na = 2\nif a == 1 + 1:\n    print(\"A\", end=\"\")\n    # 無break，繼續往下執行（模擬C的switch fall-through）\n    if True:\n        print(\"B\", end=\"\")\nelif a == 1 + 2:\n    print(\"B\", end=\"\")\nelse:\n    print(\"??\", end=\"\")\n```\n\n原始C code:\n```c\nint a = 2;\nswitch(a) {\n    case 1+1:\n        cout << \"A\";\n    case 1+2:\n        cout << \"B\";\n        break;\n    default:\n        cout << \"??\";\n}\n```",
+    "stem": "switch-case落空(fall-through)問題。右側程式執行後輸出為何？（原始C語言使用switch/case且無break會發生fall-through，這裡以Python的if/elif模擬同樣的落空效果）",
     "options": null,
     "answer": "AB",
     "explanation": "a=2符合case 1+1(=2)，印出\"A\"。由於C的switch語法中case 1+1沒有break，會continue「落空」(fall-through)繼續往下執行case 1+2的程式碼，印出\"B\"，然後遇到break跳出switch。因此輸出為\"AB\"。",
     "topic": "變數Scope(視野)、switch",
     "difficulty": "易",
+    "code": "a = 2\nif a == 1 + 1:\n    print(\"A\", end=\"\")\n    # 無break，繼續往下執行（模擬C的switch fall-through）\n    if True:\n        print(\"B\", end=\"\")\nelif a == 1 + 2:\n    print(\"B\", end=\"\")\nelse:\n    print(\"??\", end=\"\")",
     "examLabel": "2021年11月7日"
   },
   {
     "id": "2021_11_07",
-    "stem": "bubble sort like問題：給定4個陣列，問使用右側氣泡排序程式碼排序時，交換次數最多的是哪一個？\n\n```python\nn = 5\na = [???]  # 待代入下列選項\nfor i in range(n):\n    for j in range(n - 1):\n        if a[j] > a[j + 1]:\n            a[j], a[j + 1] = a[j + 1], a[j]\n            # swap次數+1\n```",
+    "stem": "bubble sort like問題：給定4個陣列，問使用右側氣泡排序程式碼排序時，交換次數最多的是哪一個？",
     "options": {
       "A": "{1, 2, 3, 4, 5, 6, 7, 8}",
       "B": "{8, 7, 6, 1, 2, 4, 3, 5}",
@@ -3748,41 +3835,45 @@
     "explanation": "氣泡排序的總交換次數等於陣列中的逆序對(inversion)數量。分別計算四個陣列的逆序對數：A為完全排序陣列，0次；B經計算共有19個逆序對，交換次數最多；C共12個逆序對；D共18個逆序對。因此選項B交換次數最多。",
     "topic": "基礎演算法",
     "difficulty": "中",
+    "code": "n = 5\na = [???]  # 待代入下列選項\nfor i in range(n):\n    for j in range(n - 1):\n        if a[j] > a[j + 1]:\n            a[j], a[j + 1] = a[j + 1], a[j]\n            # swap次數+1",
     "examLabel": "2021年11月7日"
   },
   {
     "id": "2021_11_08",
-    "stem": "bubble sort like 2：給定一個陣列{5, 3, 3, 2, 1}，n=5，使用右側氣泡排序程式碼，問總共交換(swap)幾次？\n\n```python\nn = 5\na = [5, 3, 3, 2, 1]\nswap_count = 0\nfor i in range(n):\n    for j in range(n - 1):\n        if a[j] > a[j + 1]:\n            a[j], a[j + 1] = a[j + 1], a[j]\n            swap_count += 1\nprint(swap_count)\n```",
+    "stem": "bubble sort like 2：給定一個陣列{5, 3, 3, 2, 1}，n=5，使用右側氣泡排序程式碼，問總共交換(swap)幾次？",
     "options": null,
     "answer": "9",
     "explanation": "逐步模擬氣泡排序過程：第1輪交換4次({5,3,3,2,1}→{3,3,2,1,5})，第2輪交換2次，第3輪交換2次，第4輪交換1次，第5輪交換0次，總共4+2+2+1+0=9次交換。",
     "topic": "基礎演算法",
     "difficulty": "易",
+    "code": "n = 5\na = [5, 3, 3, 2, 1]\nswap_count = 0\nfor i in range(n):\n    for j in range(n - 1):\n        if a[j] > a[j + 1]:\n            a[j], a[j + 1] = a[j + 1], a[j]\n            swap_count += 1\nprint(swap_count)",
     "examLabel": "2021年11月7日"
   },
   {
     "id": "2021_11_09",
-    "stem": "scope(變數視野)問題。全域變數i=1，函式f()內直接修改全域變數i（無區域變數宣告）。問程式執行後輸出為何？\n\n```python\ni = 1\n\ndef f():\n    global i\n    i = 3\n    print(i)\n    i = 6\n\nprint(i)\nf()\nprint(i)\n```",
+    "stem": "scope(變數視野)問題。全域變數i=1，函式f()內直接修改全域變數i（無區域變數宣告）。問程式執行後輸出為何？",
     "options": null,
     "answer": "1\\n3\\n6",
     "explanation": "由於f()函式內沒有宣告區域變數i，而是直接使用global宣告修改全域變數。main先印出全域i=1；接著呼叫f()，f內先將全域i設為3並印出3，然後再將全域i設為6；f()執行完後回到main，此時全域i已變成6，印出6。完整輸出為1,3,6（各自一行）。",
     "topic": "函式、變數的可視範圍",
     "difficulty": "易",
+    "code": "i = 1\n\ndef f():\n    global i\n    i = 3\n    print(i)\n    i = 6\n\nprint(i)\nf()\nprint(i)",
     "examLabel": "2021年11月7日"
   },
   {
     "id": "2021_11_10",
-    "stem": "while-loop問題。右側函式func(x)有一段邏輯，問下列哪些數字是func()不可能回傳的？(A)6 (B)7 (C)13 (D)16\n\n```python\ndef func(x):\n    if x > 12:\n        x = x + 5\n    while x < 14:\n        x = x - 3\n    x = x - 3\n    return x\n```",
+    "stem": "while-loop問題。右側函式func(x)有一段邏輯，問下列哪些數字是func()不可能回傳的？(A)6 (B)7 (C)13 (D)16",
     "options": null,
     "answer": "A、B、C（即6、7、13皆不可能被回傳）",
     "explanation": "當x<=12時，跳過加5的判斷，直接進入while(x<14)迴圈；由於x本身已經小於14且迴圈內只會讓x持續減少，x會永遠小於14，形成無窮迴圈，該輸入不會產生任何回傳值。當x>12時，x會先加5（此時x至少為18，必大於等於14），因此while迴圈的判斷式必為假、不會執行，接著執行迴圈外的x=x-3一次，回傳值為原輸入x+2。由於x>12（即x最小為13），回傳值x+2最小為15，因此所有小於15的回傳值（6、7、13）都不可能被回傳；16則是可能的（當x=14時，回傳16）。註：原始題目投影片將C、D兩者標示為答案，但經實際程式邏輯驗證，16(選項D)其實是可以被回傳的值（x=14時即可得到16），僅6、7、13三者才是真正不可能的回傳值，此處採用邏輯驗證後的正確答案A、B、C。",
     "topic": "函式傳值、判斷",
     "difficulty": "易",
+    "code": "def func(x):\n    if x > 12:\n        x = x + 5\n    while x < 14:\n        x = x - 3\n    x = x - 3\n    return x",
     "examLabel": "2021年11月7日"
   },
   {
     "id": "2021_11_11",
-    "stem": "二分搜尋法(此題原始程式碼有誤)。給定陣列a={2,6,10,13,66}，右側為遞迴二分搜尋函式，請問呼叫下列哪一個function call會顯露出函式有錯誤（回傳結果不正確）？\n\n```python\na = [2, 6, 10, 13, 66]\ndef bs(l, r, key):\n    if l == r:\n        return a[l]\n    m = l + (r - l) // 2\n    if a[m] < key:\n        return bs(m + 1, r, key)\n    elif a[m] > key:\n        return bs(l, m, key)\n    elif a[m] == key:\n        return a[m]\n    return -1\n\n# 呼叫方式：bs(0, 4, key)\n```",
+    "stem": "二分搜尋法(此題原始程式碼有誤)。給定陣列a={2,6,10,13,66}，右側為遞迴二分搜尋函式，請問呼叫下列哪一個function call會顯露出函式有錯誤（回傳結果不正確）？",
     "options": {
       "A": "1",
       "B": "2",
@@ -3793,21 +3884,23 @@
     "explanation": "以key=1呼叫bs(0,4,1)時，由於1比陣列中所有元素都小，正確結果應該是找不到（回傳-1或類似的失敗標記）。但實際執行後，函式會因為每次a[m]>key持續往左半邊搜尋，最終在l==m時觸發l==r的base case，錯誤地回傳a[0]=2，而非表示「找不到」的結果，因此key=1這個呼叫會顯露出函式的邏輯錯誤。其餘選項(2,10,66)恰好都是陣列中存在的元素，可以被正確找到，不會顯露出錯誤。",
     "topic": "基礎演算法(二分搜尋法)",
     "difficulty": "難",
+    "code": "a = [2, 6, 10, 13, 66]\ndef bs(l, r, key):\n    if l == r:\n        return a[l]\n    m = l + (r - l) // 2\n    if a[m] < key:\n        return bs(m + 1, r, key)\n    elif a[m] > key:\n        return bs(l, m, key)\n    elif a[m] == key:\n        return a[m]\n    return -1\n\n# 呼叫方式：bs(0, 4, key)",
     "examLabel": "2021年11月7日"
   },
   {
     "id": "2021_11_12",
-    "stem": "枚舉substring問題。substr()函式主要接受起始位置(索引)和可選的結束位置或長度，並回傳一個新字串。例如 str=\"Hello, World!\"，str.substr(0,5)可取得從索引0開始的5個字元\"Hello\"。給定右側程式碼欲枚舉字串str=\"sdklfj\"(n=6)中所有的substring，問內層迴圈??處應填入什麼？\n\n```python\nstr_ = \"sdklfj\"\nn = 6\nfor i in range(n):\n    for ??:\n        length = j - i\n        print(str_[i:i+length])\n```",
+    "stem": "枚舉substring問題。substr()函式主要接受起始位置(索引)和可選的結束位置或長度，並回傳一個新字串。例如 str=\"Hello, World!\"，str.substr(0,5)可取得從索引0開始的5個字元\"Hello\"。給定右側程式碼欲枚舉字串str=\"sdklfj\"(n=6)中所有的substring，問內層迴圈??處應填入什麼？",
     "options": null,
     "answer": "j in range(i + 1, n + 1)",
     "explanation": "要枚舉所有substring，外層i代表起始位置(0~n-1)，內層j應代表結束位置，範圍需從i+1到n(包含)，這樣length=j-i才能取遍長度從1到n-i的所有子字串。",
     "topic": "巢狀迴圈",
     "difficulty": "易",
+    "code": "str_ = \"sdklfj\"\nn = 6\nfor i in range(n):\n    for ??:\n        length = j - i\n        print(str_[i:i+length])",
     "examLabel": "2021年11月7日"
   },
   {
     "id": "2021_11_13",
-    "stem": "struct語法問題。給定結構定義：\n\n```python\nclass A:\n    def __init__(self):\n        self.x = 0\n        self.y = 0\n        self.name = ['\\0'] * 20\n\nP = A()\nQ = A()\nB = [A() for _ in range(10)]\n```\n\n問下列哪一個寫法會造成錯誤（compile error / 邏輯錯誤）？",
+    "stem": "struct語法問題。給定結構定義：\n\n問下列哪一個寫法會造成錯誤（compile error / 邏輯錯誤）？",
     "options": {
       "A": "P.x = Q.y",
       "B": "B.name[5] = 'a'",
@@ -3818,41 +3911,45 @@
     "explanation": "B是一個struct陣列（大小為10），必須先用索引指定是陣列中的哪一個元素（例如B[數字]），才能存取其成員name。「B.name[5]」直接對陣列B取用成員name是不合法的語法，正確寫法應為「B[數字].name[5] = 'a'」。選項A、D皆是對單一struct實例的合法存取。",
     "topic": "struct結構體",
     "difficulty": "易",
+    "code": "class A:\n    def __init__(self):\n        self.x = 0\n        self.y = 0\n        self.name = ['\\0'] * 20\n\nP = A()\nQ = A()\nB = [A() for _ in range(10)]",
     "examLabel": "2021年11月7日"
   },
   {
     "id": "2021_11_14",
-    "stem": "成績等地期望：右側程式希望依照下列標準判斷成績等第：90~100:A，80~89:B，70~79:C，60~69:D。請問程式哪裡寫錯？\n\n```python\ndef f(x):\n    if x <= 100 and x >= 90:\n        return 'A'\n    elif x >= 80:\n        return 'B'\n    elif x >= 70:\n        return 'C'\n    else:\n        return 'D'\n```",
+    "stem": "成績等地期望：右側程式希望依照下列標準判斷成績等第：90~100:A，80~89:B，70~79:C，60~69:D。請問程式哪裡寫錯？",
     "options": null,
     "answer": "最後的else應改為 elif x >= 60: return 'D'，否則當x<60（例如負數或不合理的分數）時，也會被錯誤地判斷為D等第。",
     "explanation": "原程式的else會捕捉所有x<70的情況（包括x<60這些不在規格內、應視為無效或不應被判定為D的分數），不符合「60~69才是D」的原始需求。應將最後一個分支改為明確的條件判斷 elif x>=60: return 'D'，避免誤判不合理的輸入。",
     "topic": "If多選一判斷",
     "difficulty": "易",
+    "code": "def f(x):\n    if x <= 100 and x >= 90:\n        return 'A'\n    elif x >= 80:\n        return 'B'\n    elif x >= 70:\n        return 'C'\n    else:\n        return 'D'",
     "examLabel": "2021年11月7日"
   },
   {
     "id": "2021_11_15",
-    "stem": "a的n次方(a^n)遞迴計算。右側f(x,y)函式，問f(2,5)回傳值為何？\n\n```python\ndef f(x, y):\n    if x == y:\n        return 1\n    return f(x, y - 1) * x\n```",
+    "stem": "a的n次方(a^n)遞迴計算。右側f(x,y)函式，問f(2,5)回傳值為何？",
     "options": null,
     "answer": "8",
     "explanation": "展開遞迴：f(2,5)=2*f(2,4)=2*2*f(2,3)=2*2*2*f(2,2)=2*2*2*1=8。此函式實際上計算的是 x的(y-x)次方，此處為2的3次方=8。",
     "topic": "遞迴呼叫",
     "difficulty": "難",
+    "code": "def f(x, y):\n    if x == y:\n        return 1\n    return f(x, y - 1) * x",
     "examLabel": "2021年11月7日"
   },
   {
     "id": "2021_11_16",
-    "stem": "a的p次方(a^p)問題，右側程式碼原本要計算 a 的 p 次方，但無法正確輸出，請問哪裡有錯誤？\n\n```python\nsum_ = 1\nwhile p >= 0:\n    sum_ = sum_ * a\n    p = p - 1\nprint(sum_)\n```",
+    "stem": "a的p次方(a^p)問題，右側程式碼原本要計算 a 的 p 次方，但無法正確輸出，請問哪裡有錯誤？",
     "options": null,
     "answer": "第2行的while條件應改為 while p > 0（而非p>=0），否則當p=0時仍會多執行一次乘法，導致結果變成a的(p+1)次方，而非正確的a的p次方。",
     "explanation": "迴圈條件p>=0會導致當p遞減到0時，仍會執行一次sum=sum*a，使得總共多乘了一次a，讓最終結果比正確答案多乘了一個a。應改為p>0，讓迴圈在p=0時就停止，恰好執行p次乘法。",
     "topic": "指數、判斷",
     "difficulty": "易",
+    "code": "sum_ = 1\nwhile p >= 0:\n    sum_ = sum_ * a\n    p = p - 1\nprint(sum_)",
     "examLabel": "2021年11月7日"
   },
   {
     "id": "2021_11_17",
-    "stem": "遞迴3n+1改。規則：如果n是奇數，變成n/2；如果n是偶數，變成3*n+1。右側func(n)函式(n==1時回傳0)，問兩個空格應該分別填入什麼？\n\n```python\ndef func(n):\n    if n == 1:\n        return 0\n    if n % 2:\n        return ___\n    else:\n        return ___\n```",
+    "stem": "遞迴3n+1改。規則：如果n是奇數，變成n/2；如果n是偶數，變成3*n+1。右側func(n)函式(n==1時回傳0)，問兩個空格應該分別填入什麼？",
     "options": {
       "A": "f(n / 2), f(3 * n + 1)",
       "B": "f(3 * n + 1), f(n / 2)",
@@ -3863,11 +3960,12 @@
     "explanation": "依題目描述規則，若n為奇數(n%2為真)則變成n/2，因此第一個空格應為f(n/2)；若n為偶數則變成3*n+1，第二個空格為f(3*n+1)。此函式單純模擬數值變化的遞迴過程，不需額外累加步數，因此兩處皆不加1，答案為選項A。",
     "topic": "遞迴、判斷",
     "difficulty": "難",
+    "code": "def func(n):\n    if n == 1:\n        return 0\n    if n % 2:\n        return ___\n    else:\n        return ___",
     "examLabel": "2021年11月7日"
   },
   {
     "id": "2021_11_18",
-    "stem": "遞迴isPal：判斷一個字串是不是回文。右側isPal(s, i, len)函式，比較字串s從索引i開始、長度為len的區間頭尾字元是否相同，問???處應該填入什麼？\n\n```python\ndef isPal(s, i, length):\n    if length == 0 or length == 1:\n        return 1\n    if s[i] != s[i + length - 1]:\n        return 0\n    return ???\n```",
+    "stem": "遞迴isPal：判斷一個字串是不是回文。右側isPal(s, i, len)函式，比較字串s從索引i開始、長度為len的區間頭尾字元是否相同，問???處應該填入什麼？",
     "options": {
       "A": "isPal(s, i, len - 1)",
       "B": "isPal(s, i + 1, len - 1)",
@@ -3878,31 +3976,34 @@
     "explanation": "比較完最外層的頭尾字元(s[i]與s[i+len-1])相同後，應該繼續檢查「去掉頭尾之後」剩下的內層子字串，也就是起始位置往右移一格(i+1)，且長度要同時減少頭尾各一個字元，即len-2。經實際程式驗證，使用len-2的選項C能正確判�ffdi \"racecar\"、\"abba\"、\"abcba\"等回文字串；而選項B（len-1）在驗證這些相同測試字串時會得到錯誤結果(誤判為非回文)，因此正確答案應為C，而非原投影片標註的B。",
     "topic": "遞迴、判斷",
     "difficulty": "難",
+    "code": "def isPal(s, i, length):\n    if length == 0 or length == 1:\n        return 1\n    if s[i] != s[i + length - 1]:\n        return 0\n    return ???",
     "examLabel": "2021年11月7日"
   },
   {
     "id": "2021_11_19",
-    "stem": "遞迴問題，問f(123)呼叫過程中所有輸出結果為何？\n\n```python\ndef f(n):\n    if n == 0:\n        return 0\n    print(n)\n    tmp = n % 10 + f(n // 10)\n    print(tmp)\n    return tmp\n\nf(123)\n```",
+    "stem": "遞迴問題，問f(123)呼叫過程中所有輸出結果為何？",
     "options": null,
     "answer": "123\\n12\\n1\\n1\\n3\\n6",
     "explanation": "追蹤遞迴呼叫：f(123)先印出123，接著呼叫f(12)；f(12)印出12，呼叫f(1)；f(1)印出1，呼叫f(0)（回傳0，無列印）；f(1)接著計算tmp=1+0=1並印出1，回傳1；f(12)計算tmp=2+1=3並印出3，回傳3；f(123)計算tmp=3+3=6並印出6，回傳6。完整輸出依序為：123,12,1,1,3,6。",
     "topic": "遞迴、判斷",
     "difficulty": "中",
+    "code": "def f(n):\n    if n == 0:\n        return 0\n    print(n)\n    tmp = n % 10 + f(n // 10)\n    print(tmp)\n    return tmp\n\nf(123)",
     "examLabel": "2021年11月7日"
   },
   {
     "id": "2021_11_20",
-    "stem": "macro巨集問題。右側程式使用#define定義的巨集，問程式執行後輸出結果為何？\n\n```python\n# C語言巨集: #define add(a, b) (a + b)\n# 呼叫: add(3, 5) * add(3, 5)\n# 巨集在編譯前直接做文字替換，因此上式展開為:\n# (3 + 5) * (3 + 5)\nresult = (3 + 5) * (3 + 5)\nprint(result)\n```",
+    "stem": "macro巨集問題。右側程式使用#define定義的巨集，問程式執行後輸出結果為何？",
     "options": null,
     "answer": "64",
     "explanation": "巨集(macro)在編譯前進行單純的文字替換，而非先計算參數的值再代入函式。因此 add(3,5)*add(3,5) 會被直接替換展開為 (3+5)*(3+5) = 8*8 = 64。這也是巨集容易產生「参数副作用」問題的經典範例——與一般函式先求值再傳遞的行為不同。",
     "topic": "巨集(macro)",
     "difficulty": "難",
+    "code": "# C語言巨集: #define add(a, b) (a + b)\n# 呼叫: add(3, 5) * add(3, 5)\n# 巨集在編譯前直接做文字替換，因此上式展開為:\n# (3 + 5) * (3 + 5)\nresult = (3 + 5) * (3 + 5)\nprint(result)",
     "examLabel": "2021年11月7日"
   },
   {
     "id": "2021_11_21",
-    "stem": "複雜度比較：計算 Σ(i=1 to n) 1/i! 兩種寫法哪種比較快？\n\n程式1(f)：\n```python\ndef f(n):\n    acc = 1\n    ret = 0\n    for i in range(1, n + 1):\n        acc = acc * i\n        ret += 1 / acc\n    return ret\n```\n\n程式2(g，呼叫q)：\n```python\ndef q(n):\n    ret = 1\n    for i in range(1, n + 1):\n        ret = ret * i\n    return ret\n\ndef g(n):\n    ret = 0\n    for i in range(1, n + 1):\n        ret += 1 / q(i)\n    return ret\n```",
+    "stem": "複雜度比較：計算 Σ(i=1 to n) 1/i! 兩種寫法哪種比較快？（程式1為f，程式2為g，g內部會呼叫q）",
     "options": {
       "A": "f()",
       "B": "g()",
@@ -3913,31 +4014,34 @@
     "explanation": "f()函式中，acc透過迴圈逐步累乘維護階乘值，因此f()的時間複雜度為O(n)。而g()函式中，每次迭代都呼叫q(i)重新計算i的階乘（q(i)本身是O(i)的迴圈），使得g()的時間複雜度變成O(n²)（因為Σi=1~n個O(i)的加總）。因此對於較大的n，f()的執行速度會明顯快於g()，f()是較優的寫法。",
     "topic": "複雜度分析",
     "difficulty": "中",
+    "code": "# 程式1 (f)：\ndef f(n):\n    acc = 1\n    ret = 0\n    for i in range(1, n + 1):\n        acc = acc * i\n        ret += 1 / acc\n    return ret\n\n# 程式2 (g，呼叫q)：\ndef q(n):\n    ret = 1\n    for i in range(1, n + 1):\n        ret = ret * i\n    return ret\n\ndef g(n):\n    ret = 0\n    for i in range(1, n + 1):\n        ret += 1 / q(i)\n    return ret",
     "examLabel": "2021年11月7日"
   },
   {
     "id": "2021_11_22",
-    "stem": "dp(動態規劃)問題。給定c[100]全部初始化為0，右側func(n,c)函式使用備忘錄(memoization)方式計算遞迴關係，問func(6,c)回傳值為何？\n\n```python\nc = [0] * 100\ndef func(n, c):\n    if n < 1:\n        return 1\n    elif c[n] > 0:\n        return c[n]\n    c[n] = 2 * func(n - 1, c) + func(n - 2, c)\n    return c[n]\n\nfor i in range(100):\n    c[i] = 0\nprint(func(6, c))\n```",
+    "stem": "dp(動態規劃)問題。給定c[100]全部初始化為0，右側func(n,c)函式使用備忘錄(memoization)方式計算遞迴關係，問func(6,c)回傳值為何？",
     "options": null,
     "answer": "239",
     "explanation": "遞迴關係為T(n)=2*T(n-1)+T(n-2)，其中n<1時T(n)=1。逐步計算：T(0)=1(n=0<1), T(1)=2*T(0)+T(-1)=2*1+1=3, T(2)=2*T(1)+T(0)=2*3+1=7, T(3)=2*T(2)+T(1)=2*7+3=17, T(4)=2*T(3)+T(2)=2*17+7=41, T(5)=2*T(4)+T(3)=2*41+17=99, T(6)=2*T(5)+T(4)=2*99+41=239。因此func(6,c)回傳239。",
     "topic": "動態規劃(dp)、遞迴",
     "difficulty": "難",
+    "code": "c = [0] * 100\ndef func(n, c):\n    if n < 1:\n        return 1\n    elif c[n] > 0:\n        return c[n]\n    c[n] = 2 * func(n - 1, c) + func(n - 2, c)\n    return c[n]\n\nfor i in range(100):\n    c[i] = 0\nprint(func(6, c))",
     "examLabel": "2021年11月7日"
   },
   {
     "id": "2021_11_23",
-    "stem": "二分搜尋法。右側binary_search(a, s, e, key)函式，問三個空格(對應s、e的更新)及最後return應分別填入什麼？\n\n```python\ndef binary_search(a, s, e, key):\n    while s < e:\n        M = s + (e - s) // 2\n        if a[M] < key:\n            s = ___1___\n        elif a[M] > key:\n            e = ___2___\n        else:\n            e = ___3___\n    return ___\n```",
+    "stem": "二分搜尋法。右側binary_search(a, s, e, key)函式，問三個空格(對應s、e的更新)及最後return應分別填入什麼？",
     "options": null,
     "answer": "1: M + 1, 2: M, 3: M, return: a[s]",
     "explanation": "標準二分搜尋的收斂邏輯：當a[M]<key時，答案在右半邊，故s應更新為M+1；當a[M]>key時，答案在左半邊，故e應更新為M；當a[M]==key時，代表找到目標，也讓e收斂為M以結束迴圈；迴圈結束時s==e，該位置即為答案所在，因此最後回傳a[s]。",
     "topic": "基礎演算法(二分搜尋法)",
     "difficulty": "中",
+    "code": "def binary_search(a, s, e, key):\n    while s < e:\n        M = s + (e - s) // 2\n        if a[M] < key:\n            s = ___1___\n        elif a[M] > key:\n            e = ___2___\n        else:\n            e = ___3___\n    return ___",
     "examLabel": "2021年11月7日"
   },
   {
     "id": "2021_11_24",
-    "stem": "資料結構判斷。有以下函數可以使用：Init(&X): 初始化資料結構X；Clear(&X): 清除資料結構X；add(X, d): 將資料d放入X內；getFirst(X): 將X目前第一個資料pop出來；getLast(X): 將X目前最後一個資料pop出來。右側isPal(s, len)函式利用這些操作，透過反覆取出X的第一個與最後一個資料比較是否相同來判斷字串是否為回文。問X應該是什麼資料結構？\n\n```python\ndef isPal(s, length):\n    Init(X)\n    for i in range(length):\n        add(X, s[i])\n    n = length\n    while n > 1:\n        if getFirst(X) != getLast(X):\n            return 0\n        n = n - 2\n    Clear(X)\n    return 1\n```",
+    "stem": "資料結構判斷。有以下函數可以使用：Init(&X): 初始化資料結構X；Clear(&X): 清除資料結構X；add(X, d): 將資料d放入X內；getFirst(X): 將X目前第一個資料pop出來；getLast(X): 將X目前最後一個資料pop出來。右側isPal(s, len)函式利用這些操作，透過反覆取出X的第一個與最後一個資料比較是否相同來判斷字串是否為回文。問X應該是什麼資料結構？",
     "options": {
       "A": "堆疊 (Stack)",
       "B": "佇列 (Queue)",
@@ -3948,16 +4052,18 @@
     "explanation": "因為程式需要同時從資料結構的「前端」(getFirst)與「尾端」(getLast)取出資料，一般的堆疊(Stack)只能從單一端(頂端)存取，佇列(Queue)只能從前端取出、後端加入，都無法同時滿足「頭尾都能取出」的需求。只有雙向佇列(deque, double-ended queue)允許從兩端進行存取操作，因此X應為雙向佇列。",
     "topic": "資料結構",
     "difficulty": "中",
+    "code": "def isPal(s, length):\n    Init(X)\n    for i in range(length):\n        add(X, s[i])\n    n = length\n    while n > 1:\n        if getFirst(X) != getLast(X):\n            return 0\n        n = n - 2\n    Clear(X)\n    return 1",
     "examLabel": "2021年11月7日"
   },
   {
     "id": "2021_11_25",
-    "stem": "執行次數問題。右側迴圈中，問「i = i * 2」這一行總共會執行幾次？\n\n```python\ni = 0\ncount = 0\nwhile i < 16:\n    i = i * 2\n    count += 1\n    i += 1\nprint(count)\n```",
+    "stem": "執行次數問題。右側迴圈中，問「i = i * 2」這一行總共會執行幾次？",
     "options": null,
     "answer": "5",
     "explanation": "逐步模擬：i=0(進入迴圈，符合i<16)→執行i=i*2得i=0，然後i++得i=1(第1次執行)；i=1<16→i=i*2得i=2，i++得i=3(第2次)；i=3<16→i=i*2得i=6，i++得i=7(第3次)；i=7<16→i=i*2得i=14，i++得i=15(第4次)；i=15<16→i=i*2得i=30，i++得i=31(第5次)；此時i=31，不小於16，迴圈結束。「i=i*2」總共執行了5次。",
     "topic": "迴圈執行次數",
     "difficulty": "易",
+    "code": "i = 0\ncount = 0\nwhile i < 16:\n    i = i * 2\n    count += 1\n    i += 1\nprint(count)",
     "examLabel": "2021年11月7日"
   }
 ]
@@ -4421,7 +4527,27 @@ function renderQuestion() {
   tagDiff.textContent = '難度：' + q.difficulty;
   tagDiff.className = 'tag diff-' + q.difficulty;
 
-  document.getElementById('stem-code').innerHTML = renderStemHtml(q.stem);
+  const stemTextEl = document.getElementById('stem-text');
+  const stemCodeEl = document.getElementById('stem-code');
+  if (q.code) {
+    // 新格式：題目描述與程式碼分開儲存
+    stemTextEl.style.display = 'block';
+    stemTextEl.innerHTML = renderStemHtml(q.stem);
+    stemCodeEl.style.display = 'block';
+    stemCodeEl.innerHTML = renderStemHtml(q.code);
+  } else if ('code' in q) {
+    // 明確標示此題無程式碼（純文字/純數學題）
+    stemTextEl.style.display = 'block';
+    stemTextEl.innerHTML = renderStemHtml(q.stem);
+    stemCodeEl.style.display = 'none';
+    stemCodeEl.innerHTML = '';
+  } else {
+    // 舊格式（125題庫）：題目描述與程式碼仍合併在同一欄位
+    stemTextEl.style.display = 'none';
+    stemTextEl.innerHTML = '';
+    stemCodeEl.style.display = 'block';
+    stemCodeEl.innerHTML = renderStemHtml(q.stem);
+  }
 
   const optsWrap = document.getElementById('options');
   optsWrap.innerHTML = '';
