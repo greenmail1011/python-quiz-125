@@ -213,11 +213,40 @@
   }
   .modal-brand {
     text-align: center;
-    font-size: 15px;
+    font-size: 18px;
     font-weight: 800;
     letter-spacing: .5px;
-    color: #e7ecf7;
-    margin-bottom: 4px;
+    color: #f4f8ff;
+    text-shadow: 0 0 14px rgba(125,211,252,.35);
+    margin-bottom: 12px;
+    line-height: 1.4;
+  }
+  .led-marquee {
+    background: #04070a;
+    border: 1px solid rgba(57,255,136,.35);
+    border-radius: 6px;
+    padding: 7px 0;
+    margin-bottom: 14px;
+    overflow: hidden;
+    box-shadow: inset 0 0 14px rgba(57,255,136,.14), 0 0 10px rgba(57,255,136,.12);
+  }
+  .led-marquee-track {
+    display: flex;
+    width: max-content;
+    animation: led-scroll 16s linear infinite;
+  }
+  .led-marquee-track span {
+    display: inline-block;
+    white-space: nowrap;
+    font-family: "SF Mono", "Menlo", "Consolas", monospace;
+    font-size: 11.5px;
+    letter-spacing: 1.5px;
+    color: #39ff88;
+    text-shadow: 0 0 4px rgba(57,255,136,.9), 0 0 10px rgba(57,255,136,.5);
+  }
+  @keyframes led-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
   }
   .modal-eyebrow {
     display: flex;
@@ -724,8 +753,14 @@
         </defs>
       </svg>
     </div>
-    <div class="modal-brand">未來斑馬程式設計學苑</div>
-    <div class="modal-eyebrow">APCS 培訓系統 · Secure Access</div>
+    <div class="modal-brand">未來斑馬程式設計學苑｜APCS培訓系統</div>
+    <div class="led-marquee">
+      <div class="led-marquee-track">
+        <span>APCS 官方網站｜https://apcs.csie.ntnu.edu.tw/　　•　　更多歷屆試題與最新資訊請至官方網站查詢　　•　　</span>
+        <span>APCS 官方網站｜https://apcs.csie.ntnu.edu.tw/　　•　　更多歷屆試題與最新資訊請至官方網站查詢　　•　　</span>
+      </div>
+    </div>
+    <div class="modal-eyebrow">Secure Access</div>
     <h3>登入</h3>
     <div class="sub">請先登入才能使用題庫。登入後，你的練習紀錄會存到雲端，換裝置也不會不見。</div>
 
