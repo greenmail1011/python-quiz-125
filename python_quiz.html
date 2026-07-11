@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python 程式識讀 125 題 — 課堂互動題庫</title>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --panel: #ffffff;
+    --ink: #1f2430;
+    --muted: #6b7280;
+    --border: #e3e5ea;
+    --accent: #4f6df5;
+    --accent-dark: #3950c9;
+    --green: #1f9d55;
+    --green-bg: #e8f8ee;
+    --red: #d64545;
+    --red-bg: #fdecec;
+    --amber: #b8860b;
+    --code-bg: #1e2230;
+    --code-ink: #e8eaf2;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+  }
+  header {
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+  header h1 {
+    font-size: 17px;
+    margin: 0;
+    font-weight: 700;
+  }
+  header h1 span {
+    font-weight: 400;
+    color: var(--muted);
+    font-size: 13px;
+    margin-left: 8px;
+  }
+  .mode-switch {
+    display: flex;
+    background: #eef0f4;
+    border-radius: 999px;
+    padding: 4px;
+    gap: 4px;
+  }
+  .mode-switch button {
+    border: none;
+    background: transparent;
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-size: 14px;
+    cursor: pointer;
+    color: var(--muted);
+    font-weight: 600;
+    transition: all .15s;
+  }
+  .mode-switch button.active {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(79,109,245,.35);
+  }
+  .class-switch {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .class-switch label {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .class-switch select {
+    padding: 7px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 13px;
+    background: #fafbfc;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .class-switch button {
+    border: 1px solid var(--border);
+    background: #fafbfc;
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--muted);
+  }
+  .class-switch button:hover { border-color: var(--accent); color: var(--accent-dark); }
+  .progress-hint {
+    font-size: 12.5px;
+    color: var(--muted);
+    background: #eef0f4;
+    padding: 6px 12px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .auth-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .auth-area button {
+    border: 1px solid var(--border);
+    background: #fafbfc;
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .auth-area button:hover { border-color: var(--accent); color: var(--accent-dark); }
+  .auth-area .user-chip {
+    font-size: 13px;
+    color: var(--ink);
+    background: #eef0f4;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-weight: 600;
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 22, 30, .55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .modal-box {
+    background: var(--panel);
+    border-radius: 14px;
+    padding: 26px 28px;
+    width: 360px;
+    max-width: 90vw;
+    box-shadow: 0 20px 60px rgba(0,0,0,.3);
+  }
+  .modal-box h3 {
+    margin: 0 0 4px;
+    font-size: 17px;
+  }
+  .modal-box .sub {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+  .google-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .google-btn:hover { border-color: var(--accent); }
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 16px 0;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .modal-box input {
+    width: 100%;
+    padding: 9px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 14px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+  }
+  .auth-btn-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .auth-btn-row button {
+    flex: 1;
+    padding: 9px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #fafbfc;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--ink);
+  }
+  .auth-btn-row button.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .auth-error {
+    color: var(--red);
+    font-size: 12.5px;
+    margin-top: 8px;
+    min-height: 16px;
+  }
+  .modal-close-row {
+    text-align: right;
+    margin-top: 14px;
+  }
+  .modal-close-row button {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .student-score-box {
+    margin-top: 14px;
+    padding: 10px;
+    border-radius: 8px;
+    background: #eef4ff;
+    border: 1px solid #cddcff;
+    font-size: 13px;
+  }
+  .student-score-box .big { font-size: 22px; font-weight: 800; color: var(--accent-dark); }
+  .layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 20px;
+    max-width: 1180px;
+    margin: 20px auto;
+    padding: 0 20px;
+    align-items: start;
+  }
+  .sidebar {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    position: sticky;
+    top: 82px;
+  }
+  .sidebar h3 {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0 0 10px;
+    font-weight: 700;
+  }
+  .filter-row {
+    margin-bottom: 14px;
+  }
+  .filter-row label {
+    font-size: 12px;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 4px;
+  }
+  .filter-row select {
+    width: 100%;
+    padding: 6px 8px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 13px;
+    background: #fafbfc;
+  }
+  .qgrid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 5px;
+    max-height: 420px;
+    overflow-y: auto;
+    padding-right: 2px;
+  }
+  .qgrid button {
+    aspect-ratio: 1;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: #fafbfc;
+    font-size: 11px;
+    cursor: pointer;
+    color: var(--ink);
+    padding: 0;
+  }
+  .qgrid button:hover { border-color: var(--accent); }
+  .qgrid button.current { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; }
+  .qgrid button.done-correct { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+  .qgrid button.done-wrong { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+  .qgrid button.lecture-done { background: #eaf0ff; border-color: var(--accent); color: var(--accent-dark); }
+  .qgrid button.diff-易 { border-left: 3px solid #9fd8b0; }
+  .qgrid button.diff-中 { border-left: 3px solid #f2c94c; }
+  .qgrid button.diff-難 { border-left: 3px solid #ec8f8f; }
+
+  .score-box {
+    margin-top: 14px;
+    padding: 10px;
+    border-radius: 8px;
+    background: #fafbfc;
+    border: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .score-box .big { font-size: 22px; font-weight: 800; color: var(--accent); }
+  .score-box button {
+    margin-top: 8px;
+    width: 100%;
+    padding: 6px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #fff;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .main-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    min-height: 480px;
+  }
+  .qmeta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .qmeta .qnum {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--accent-dark);
+  }
+  .tag {
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: #eef0f4;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .tag.diff-易 { background: #e8f8ee; color: var(--green); }
+  .tag.diff-中 { background: #fff8e6; color: var(--amber); }
+  .tag.diff-難 { background: var(--red-bg); color: var(--red); }
+
+  .stem-code {
+    background: var(--code-bg);
+    color: var(--code-ink);
+    border-radius: 10px;
+    padding: 18px 20px;
+    font-family: "SF Mono", "Menlo", "Consolas", monospace;
+    font-size: 14.5px;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-bottom: 20px;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14.5px;
+    line-height: 1.5;
+    transition: all .12s;
+    background: #fafbfc;
+  }
+  .option:hover { border-color: var(--accent); }
+  .option .letter {
+    font-weight: 800;
+    color: var(--accent-dark);
+    min-width: 20px;
+  }
+  .option-text { white-space: pre-wrap; word-break: break-word; font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+
+  .option.correct-pick {
+    background: var(--green-bg);
+    border-color: var(--green);
+  }
+  .option.wrong-pick {
+    background: var(--red-bg);
+    border-color: var(--red);
+  }
+  .option.reveal-correct {
+    background: var(--green-bg);
+    border-color: var(--green);
+  }
+  .option.disabled { cursor: default; }
+
+  .reveal-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .reveal-btn:hover { background: var(--accent-dark); }
+
+  .answer-panel {
+    margin-top: 18px;
+    padding: 16px 18px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: #fafbfc;
+  }
+  .answer-panel.is-correct { border-color: var(--green); background: var(--green-bg); }
+  .answer-panel.is-wrong { border-color: var(--red); background: var(--red-bg); }
+  .answer-panel .result-line {
+    font-weight: 800;
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+  .answer-panel .result-line.ok { color: var(--green); }
+  .answer-panel .result-line.no { color: var(--red); }
+  .answer-panel .explain {
+    white-space: pre-wrap;
+    line-height: 1.7;
+    font-size: 14px;
+    color: var(--ink);
+  }
+  .answer-panel .meta-line {
+    margin-top: 10px;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+  .nav-row .btns { display: flex; gap: 8px; }
+  .nav-row button {
+    padding: 9px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .nav-row button:hover { border-color: var(--accent); color: var(--accent-dark); }
+  .nav-row button:disabled { opacity: .4; cursor: default; }
+  .nav-row .progress { font-size: 13px; color: var(--muted); }
+
+  .lecture-hint {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .admin-btn {
+    border: 1px solid var(--accent) !important;
+    color: var(--accent-dark) !important;
+    background: #eef4ff !important;
+  }
+  .admin-modal-box {
+    background: var(--panel);
+    border-radius: 14px;
+    padding: 22px 26px;
+    width: 720px;
+    max-width: 94vw;
+    max-height: 82vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0,0,0,.3);
+  }
+  .admin-modal-box h3 { margin: 0 0 4px; font-size: 17px; }
+  .admin-modal-box .sub { font-size: 12.5px; color: var(--muted); margin-bottom: 14px; }
+  .admin-table-wrap { overflow-y: auto; flex: 1; border: 1px solid var(--border); border-radius: 8px; }
+  table.admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.admin-table th, table.admin-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    white-space: nowrap;
+  }
+  table.admin-table th { background: #fafbfc; position: sticky; top: 0; }
+  table.admin-table td.email-col { max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+  table.admin-table button {
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: #fff;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--red);
+  }
+  table.admin-table button:hover { border-color: var(--red); }
+  .admin-modal-close-row { text-align: right; margin-top: 14px; }
+  .admin-modal-close-row button {
+    background: none; border: none; color: var(--muted); font-size: 13px; cursor: pointer;
+  }
+  .admin-empty { padding: 20px; text-align: center; color: var(--muted); font-size: 13px; }
+
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { position: static; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Python 程式識讀 125 題<span>課堂互動題庫</span></h1>
+  <div class="class-switch" id="class-switch-wrap" style="display:none;">
+    <label>班級</label>
+    <select id="class-select"></select>
+    <button id="btn-add-class" title="新增班級">＋ 新增班級</button>
+  </div>
+  <span class="progress-hint" id="progress-hint"></span>
+  <div class="auth-area" id="auth-area"></div>
+  <div class="mode-switch" id="mode-switch-wrap" style="display:none;">
+    <button id="btn-lecture" class="active">講解模式</button>
+    <button id="btn-practice">練習模式</button>
+  </div>
+</header>
+
+<div class="modal-overlay" id="auth-modal" style="display:flex;">
+  <div class="modal-box">
+    <h3>登入</h3>
+    <div class="sub">請先登入才能使用題庫。登入後，你的練習紀錄會存到雲端，換裝置也不會不見。</div>
+
+    <button class="google-btn" id="google-signin-btn">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
+      使用 Google 帳號登入
+    </button>
+
+    <div class="divider">或使用 Email</div>
+
+    <input type="email" id="auth-email" placeholder="Email">
+    <input type="password" id="auth-password" placeholder="密碼（至少 6 碼）">
+    <div class="auth-btn-row">
+      <button id="email-signin-btn">登入</button>
+      <button class="primary" id="email-register-btn">註冊新帳號</button>
+    </div>
+    <div class="auth-error" id="auth-error"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="admin-modal" style="display:none;">
+  <div class="admin-modal-box">
+    <h3>管理後台 — 學生名單與練習進度</h3>
+    <div class="sub">僅管理者帳號可見。如需停用或刪除學生帳號，請至 Firebase Console 手動操作。</div>
+    <div class="admin-table-wrap">
+      <table class="admin-table" id="admin-table" style="display:none;">
+        <thead>
+          <tr>
+            <th>Email / 名稱</th>
+            <th>已作答</th>
+            <th>答對</th>
+            <th>正確率</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="admin-table-body"></tbody>
+      </table>
+      <div class="admin-empty" id="admin-empty">載入中…</div>
+    </div>
+    <div class="admin-modal-close-row">
+      <button id="admin-modal-close">關閉</button>
+    </div>
+  </div>
+</div>
+
+<div class="layout" id="app-layout" style="display:none;">
+  <aside class="sidebar">
+    <h3>篩選 / 跳題</h3>
+    <div class="filter-row">
+      <label>難度</label>
+      <select id="filter-diff">
+        <option value="">全部</option>
+        <option value="易">易</option>
+        <option value="中">中</option>
+        <option value="難">難</option>
+      </select>
+    </div>
+    <div class="filter-row">
+      <label>題號快速跳轉</label>
+      <div class="qgrid" id="qgrid"></div>
+    </div>
+    <div class="student-score-box" id="student-score-box" style="display:none;">
+      <div>我的練習紀錄（雲端同步）</div>
+      <div class="big"><span id="student-score-correct">0</span> / <span id="student-score-total">0</span></div>
+      <button id="btn-reset-student-score" style="margin-top:8px;width:100%;padding:6px;border-radius:8px;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:12px;color:var(--muted);">清除我的練習紀錄</button>
+    </div>
+    <div class="score-box" id="score-box" style="display:none;">
+      <div>本班練習成績</div>
+      <div class="big"><span id="score-correct">0</span> / <span id="score-total">0</span></div>
+      <button id="btn-reset-score">清除本班練習紀錄</button>
+    </div>
+    <div class="score-box" id="lecture-box" style="display:none;">
+      <div>本班已講解題數</div>
+      <div class="big"><span id="lecture-covered">0</span> / <span id="lecture-total">125</span></div>
+      <button id="btn-reset-lecture">清除本班講解紀錄</button>
+    </div>
+  </aside>
+
+  <main class="main-panel">
+    <div class="qmeta">
+      <span class="qnum" id="qnum-label">Q.001</span>
+      <span class="tag" id="tag-topic">主題</span>
+      <span class="tag" id="tag-diff">難度</span>
+    </div>
+
+    <div class="lecture-hint" id="lecture-hint">點擊「顯示解答」查看答案與說明（適合課堂逐題講解）</div>
+
+    <div class="stem-code" id="stem-code"></div>
+
+    <div class="options" id="options"></div>
+
+    <button class="reveal-btn" id="reveal-btn">顯示解答</button>
+
+    <div class="answer-panel" id="answer-panel" style="display:none;">
+      <div class="result-line" id="result-line"></div>
+      <div class="explain" id="explain-text"></div>
+      <div class="meta-line" id="meta-line"></div>
+    </div>
+
+    <div class="nav-row">
+      <div class="btns">
+        <button id="btn-prev">← 上一題</button>
+        <button id="btn-next">下一題 →</button>
+      </div>
+      <div class="progress" id="progress-label"></div>
+    </div>
+  </main>
+</div>
+
+<script id="quiz-data" type="application/json">
+[{"id": 1, "stem": "a = 5\nb = 3+a*2-a//2\na = a+b\nprint(a,b)\n輸出為何？", "options": {"A": "15.5 10.5", "B": "16 11", "C": "10 5", "D": "10.5 5.5", "E": "執行錯誤"}, "answer": "B", "explanation": "整數除法、先乘除後加減", "topic": "變數與基本運算", "difficulty": "易"}, {"id": 2, "stem": "a = (5+2)*(7-2*3)\nb = (a-4*(a-5))*2\nprint(a,b)\n輸出為何？", "options": {"A": "7 -2", "B": "105 -325", "C": "51 -9", "D": "0 0", "E": "執行錯誤"}, "answer": "A", "explanation": "括弧先算、先乘除後加減", "topic": "變數與基本運算", "difficulty": "易"}, {"id": 3, "stem": "a = 5\nb = a+3 = 7\nprint(a,b)\n輸出為何？", "options": {"A": "5 7", "B": "4 7", "C": "4 8", "D": "5 8", "E": "執行錯誤"}, "answer": "E", "explanation": "指定運算(=)左方必須為變數", "topic": "變數與基本運算", "difficulty": "易"}, {"id": 4, "stem": "q = []\nhead = 0\ndef push(q,c):\n        x\n#\ndef pop(q):\n    c = q[head]\n        y\n    return c\n#\n此程式中 q 是用來當作一個先進先出的佇列\n(queue)。push 與 pop 兩函數中所缺的指令\nx與y應填入下列何者？", "options": {"A": "x: q[head]=c; y: head += 1", "B": "x: q.append(c); y: head += 1", "C": "x: q[head]=c; y: head -= 1", "D": "x: q.append(c); y: head -= 1", "E": "以上皆非"}, "answer": "B", "explanation": "queue的基本題，簡易的 queue，\nhead為彈出的位置，list的尾端直接當作queue的尾端。", "topic": "queue,list", "difficulty": "中"}, {"id": 5, "stem": "a = 2\na = 3.5\nb = 3//5*5\nprint(a,b)\n輸出為何？", "options": {"A": "2 3", "B": "3.5 3", "C": "2 0", "D": "3.5 0", "E": "執行錯誤"}, "answer": "D", "explanation": "指令先後順序，變數無型態限制，所以 a=3.5。b的計算同是乘除，由左往右，\n整數除法無小數，b=0", "topic": "指令循序執行，變數與基本運算", "difficulty": "易"}, {"id": 6, "stem": "a = 13%5\nb = -13%5\nc = -13//5\nprint(a,b,c)\n輸出為何？", "options": {"A": "3 -3 -3", "B": "3 2 -3", "C": "3 -3 -2", "D": "3 2 -2", "E": "執行錯誤"}, "answer": "B", "explanation": "負號優先結合，題目中等同 b=(-\n13)%5 與 c=(-13)//5，求整數除法商取\nrounding down(捨位到比較小的整數，\n餘數運算時，滿足被除數=商*除數+餘數，\n所以負數除以正數取餘數時，餘數落於[0,\n除數-1]之間", "topic": "變數與基本運算", "difficulty": "中"}, {"id": 7, "stem": "a = 5\nb = 3\na,b = b-1,a-1\nprint(a,b)\n輸出為何？", "options": {"A": "2 1", "B": "3 4", "C": "2 4", "D": "不一定", "E": "執行錯誤"}, "answer": "C", "explanation": "先取值計算右邊，再指定給左邊", "topic": "多變數的指定運算，=的運作方式", "difficulty": "易"}, {"id": 8, "stem": "s = [1,1,-3,2,4,-1,2,3,-5,2,-1,1]\nq = []\nh = 0\nfor v in s:\n    if v > 0:\n        q.append(v)\n    else:\n        while v < 0 and h<len(q):\n            v += q[h]; h += 1\nprint(sum(q[h:]))\n輸出為何？", "options": {"A": "1", "B": "3", "C": "4", "D": "6", "E": "以上皆非或執行錯誤"}, "answer": "B", "explanation": "用理解或直接追蹤皆可。q是queue，\n碰到正數壓入，負數則一直彈出抵銷，直到\nq 是空或抵消完畢。問最後剩下 queue 中的總和。在測資中，-3消掉前面，-1消掉\n2，-5消(4,2)，-1消3，最後 queue中剩下(2,1)", "topic": "queue,list", "difficulty": "難"}, {"id": 9, "stem": "q = []\nh = 0\ns = ''\nfor v in [3,12,-2,765,23,-1,-3]:\n    if v > 0: q.append(str(v))\n    else:\n        s += q[h]\n        h += 1\n#\nprint(s)\n輸出為何？", "options": {"A": "312765", "B": "780", "C": "31276523", "D": "1223765", "E": "以上皆非或執行錯誤"}, "answer": "A", "explanation": "q是queue，正數壓入字串，否則從\nq 中彈出串接到s。", "topic": "queue,string", "difficulty": "中"}, {"id": 10, "stem": "a = 1 < 2\nb += a\nprint(a,b)\n輸出為何？", "options": {"A": "True 1", "B": "1 1", "C": "0 0", "D": "不一定", "E": "執行錯誤"}, "answer": "E", "explanation": "b+= 左方必須有定義", "topic": "布林表示法，常見錯誤", "difficulty": "易"}, {"id": 11, "stem": "s = [1,1,-3,3,4,-1,2,3,-5,2,1,-1]\nq = []\nfor v in s:\n    if v > 0:\n        q.append(v)\n    else:\n        while v < 0 and q:\n            v += q.pop()\nprint(sum(q))\n輸出為何？", "options": {"A": "1", "B": "3", "C": "5", "D": "7", "E": "以上皆非或執行錯誤"}, "answer": "C", "explanation": "用理解或直接追蹤皆可。q是stack，\n碰到正數壓入，負數則一直彈出抵銷，直到\nq 是空或抵消完畢。問最後剩下 stack 中的總和。在測資中，-3消掉前面，-1消掉\n3，-5消(2,3)，-1消1，最後 stack中剩下(3,2)", "topic": "stack,list", "difficulty": "難"}, {"id": 12, "stem": "s = input()\na = [s for s in input().split()]\nprint(s,a)\n若輸入為以下內容\nhello py\n123 45\n則輸出為何？", "options": {"A": "hello py [123,45]", "B": "hello 123 45", "C": "hello ['123','45']", "D": "hello py ['123','45']", "E": "以上皆非或執行錯誤"}, "answer": "D", "explanation": "輸入為一行字串，split()是以空白切割字串，第二行[]內的 s 為區域變數與外面的無關", "topic": "常用輸入方式，列表生成式中的區域變數", "difficulty": "中"}, {"id": 13, "stem": "a,b = [int(x) for x in input().split()]\nprint(a+b)\n若輸入為以下內容\n100 45\n則輸出為何？", "options": {"A": "10045", "B": "[100,45]", "C": "145", "D": "[10045]", "E": "以上皆非或執行錯誤"}, "answer": "C", "explanation": "輸入為一行字串，split()是以空白切割字串，int轉換為整數。所以\na=100,b=45皆整數。\n等號右邊是list，左邊是兩個變數與\nlist長度相同，會自動 unpack。", "topic": "常用輸入方式", "difficulty": "中"}, {"id": 14, "stem": "a,b = [int(x) for x in input().split()]\nprint(a,b)\n若輸入為以下內容\n100 45 25\n則輸出為何？", "options": {"A": "100 45", "B": "[100,45],25", "C": "[100,[45,25]", "D": "45 25", "E": "以上皆非或執行錯誤"}, "answer": "E", "explanation": "右邊是3個整數的 list，左邊只有兩個變數，會產生執行錯誤。\n等號右邊是list，左邊是兩個變數與\nlist長度相同，會自動 unpack。", "topic": "常用輸入方式、unpack時左右數量比須一致。", "difficulty": "中"}, {"id": 15, "stem": "a = (10<3) or (4!=2+3)\nb = a and (3<7<=9)\nprint(a,b)\n輸出為何？", "options": {"A": "False True", "B": "True True", "C": "False False", "D": "True False", "E": "執行錯誤Error"}, "answer": "B", "explanation": "邏輯運算", "topic": "基本邏輯運算", "difficulty": "易"}, {"id": 16, "stem": "a,b = 10<3, 4!=2+3\nc = b and (a or not b)\nd = (a and not b) or (not a and b)\nprint(c,d)\n輸出為何？", "options": {"A": "False True", "B": "True True", "C": "False False", "D": "True False", "E": "執行錯誤Error"}, "answer": "A", "explanation": "邏輯運算", "topic": "基本邏輯運算", "difficulty": "易"}, {"id": 17, "stem": "a = str(1<3)+str(101)\nprint(a)\n輸出為何？", "options": {"A": "1101", "B": "102", "C": "True101", "D": "False101", "E": "執行錯誤Error"}, "answer": "C", "explanation": "數字與布林轉字串，字串相接", "topic": "轉換字串str函數", "difficulty": "易"}, {"id": 18, "stem": "a = '12'\nb = '3'\nprint(int(a+b),int(a)+int(b))\n輸出為何？", "options": {"A": "123 123", "B": "12 3", "C": "15 15", "D": "123 15", "E": "執行錯誤Error"}, "answer": "D", "explanation": "數字轉字串，字串相接", "topic": "int函數用法，整數與字串的區別", "difficulty": "易"}, {"id": 19, "stem": "a = \"fake\"\nb = ord(a[3])-ord(a[1])\nc = a + chr(ord('f')+b)\nprint(c)\n輸出為何？", "options": {"A": "fakek", "B": "fakej", "C": "fakk", "D": "fakj", "E": "執行錯誤Error"}, "answer": "B", "explanation": "b=ord('e')-ord('a')=4;\nchr(ord('f')+4) = 'j'", "topic": "ord,chr函數，字母的ASCII是連續(a~z)", "difficulty": "中"}, {"id": 20, "stem": "a = bool(\"\")+int(1<3)\nprint(a)\n輸出為何？", "options": {"A": "0", "B": "1", "C": "True", "D": "False1", "E": "執行錯誤Error"}, "answer": "B", "explanation": "\"\"轉bool是False，int(1<3)是\nTrue 轉為1，因為是加法，前面型轉成 0，\n0+1=1", "topic": "bool與int函數", "difficulty": "易"}, {"id": 21, "stem": "s = \"\"\na = s or 'notEmpty'\nprint(a)\n輸出為何？", "options": {"A": "False", "B": "True", "C": "(輸出空字串)", "D": "notEmpty", "E": "執行錯誤Error"}, "answer": "D", "explanation": "or運算回傳第一個true的項目，如果全部是 false就回傳false", "topic": "or與and的運作方式，shortcircuitevaluation", "difficulty": "難"}, {"id": 22, "stem": "a = (3 and 'we') or 0\nprint(a)\n輸出為何？", "options": {"A": "False", "B": "True", "C": "3", "D": "we", "E": "0"}, "answer": "D", "explanation": "(3 and 'we')是true,結果是we，\nOR 回傳第一個true的項目", "topic": "or與and的運作方式，shortcircuitevaluation", "difficulty": "難"}, {"id": 23, "stem": "s = \"\"\na = (s==\"\") and ((1>3) or 123)\nprint(a+2)\n輸出為何？", "options": {"A": "2", "B": "3", "C": "1232", "D": "125", "E": "執行錯誤Error"}, "answer": "D", "explanation": "(s==\"\")為true，回傳後項；or 回傳第一個為 true的項目，a是整數123", "topic": "or與and的運作方式，shortcircuitevaluation", "difficulty": "難"}, {"id": 24, "stem": "n = 2\na = 'py'*n+(n+1)*'a'\nprint(a)\n輸出為何？", "options": {"A": "py23a", "B": "pypyaaa", "C": "0", "D": "5", "E": "執行錯誤Error"}, "answer": "B", "explanation": "字串乘數字是重複字串", "topic": "字串基本操作乘法與加法", "difficulty": "易"}, {"id": 25, "stem": "a = 'py'+2\nprint(a)\n輸出為何？", "options": {"A": "py2", "B": "2", "C": "pypy", "D": "(輸出空字串)", "E": "執行錯誤Error"}, "answer": "E", "explanation": "字串與整數無法相加", "topic": "字串與整數資料型別", "difficulty": "易"}, {"id": 26, "stem": "s = \"py\"\na = s*(1>3)\nprint(a)\n輸出為何？", "options": {"A": "py", "B": "py0", "C": "False", "D": "(輸出空字串)", "E": "執行錯誤Error"}, "answer": "D", "explanation": "(1>3)轉整數為0，s*0是空字串", "topic": "字串基本操作乘法與加法，布林轉整數", "difficulty": "中"}, {"id": 27, "stem": "a = ''\na = 20+3.5\nprint(a)\n輸出為何？", "options": {"A": "23.5", "B": "23.0", "C": "203.5", "D": "23", "E": "執行錯誤Error"}, "answer": "A", "explanation": "第一行無作用。整數與 float運算後變成 float", "topic": "float的基本操作", "difficulty": "易"}, {"id": 28, "stem": "a,b,c = [float(x) for x in input().split()]\nr = (c+a)*b\nprint(r)\n若輸入為以下內容\n1.5 10 2.5e2\n則輸出為何？", "options": {"A": "17.5", "B": "2515.0", "C": "261.5", "D": "2515", "E": "以上皆非或執行錯誤"}, "answer": "B", "explanation": "輸入一行字串切開後轉\nfloat，2.5e2是科學表示式，乘以 10 的 2 次方。計算時括弧先算，輸出時，浮點數後有小數點", "topic": "常用輸入法與float的基本操作", "difficulty": "易"}, {"id": 29, "stem": "s,w = \"\",5\np = [1,5,7]\nif s:\n    if w in p: a = 0\n    else: a = 1\nelif p[0]< w <p[2]:\n    if w+2 not in p: a = 2\n    else: a = 3\nelse:\n    a = 4\nprint(a%4)\n輸出為何？", "options": {"A": "1", "B": "2", "C": "3", "D": "0", "E": "執行錯誤Error"}, "answer": "C", "explanation": "if 判斷，空字串轉布林是 false，\np[0]=1,p[2]=7,故1<w<7 成立，w+2=7\n所以 7 not in p不成立，a=3", "topic": "基本流程控制，邏輯運算", "difficulty": "易"}, {"id": 30, "stem": "a,s = 3,\"e\"\nif 2<a<5:\n    s += 'e'\nif len(s)==2:\n    a += 5\nelse: a = 0\nprint(a,s)\n輸出為何？", "options": {"A": "8 e", "B": "8 ee", "C": "0 e", "D": "3 ee", "E": "執行錯誤Error"}, "answer": "B", "explanation": "第一個 if 會成立，第 2 個 if 也成立。", "topic": "基本流程控制與邏輯運算，x<y<z這種表示法，多個if以及有沒有else的流程，len(str)的使用", "difficulty": "易"}, {"id": 31, "stem": "a,s = 3,\"e\"\nif 2<a<5:\n    s += 'e'\n    if len(s)==1:\n        a += 5\nelse: a = 0\nprint(a,s)\n輸出為何？", "options": {"A": "8 e", "B": "0 ee", "C": "0 e", "D": "3 ee", "E": "執行錯誤Error"}, "answer": "D", "explanation": "nested if and else", "topic": "基本流程控制與邏輯運算，x<y<z這種表示法，多個if以及有沒有else的流程，len(str)的使用。與其一題的差別。", "difficulty": "易"}, {"id": 32, "stem": "t = 0\nfor i in range(10):\n    if i%3 == 1:\n        t += 1\nprint(t)\n輸出為何？", "options": {"A": "0", "B": "3", "C": "4", "D": "10", "E": "執行錯誤Error"}, "answer": "B", "explanation": "i=1,4,7時if成立，t加1三次", "topic": "for與if的基本流程控制與forrange的使用方式。", "difficulty": "易"}, {"id": 33, "stem": "t = 0\nfor i in range(100):\n    if i%2 == 1:\n        t += i\nprint(t)\n輸出為何？", "options": {"A": "50", "B": "2500", "C": "2450", "D": "4950", "E": "執行錯誤Error"}, "answer": "B", "explanation": "1+3+…+99 = 2500", "topic": "for與if的基本流程控制與forrange的使用方式。簡單的等差級數公式。", "difficulty": "中"}, {"id": 34, "stem": "t = 0\nfor i in range(100):\n    if i%2 == 1:\n    t += i\nprint(t)\n輸出為何？", "options": {"A": "50", "B": "2500", "C": "2450", "D": "4950", "E": "執行錯誤Error"}, "answer": "E", "explanation": "if內的指令要縮排或接在:之後", "topic": "if的格式。", "difficulty": "易"}, {"id": 35, "stem": "t = 0\nfor i in range(10): t += i\nif t%6 == 0: t += 10\nelse: t += t\nprint(t)\n輸出為何？", "options": {"A": "45", "B": "55", "C": "90", "D": "110", "E": "執行錯誤Error"}, "answer": "C", "explanation": "for 與 if 內只有一個指令時，可以寫在:之後", "topic": "if與for的格式。", "difficulty": "易"}, {"id": 36, "stem": "def f(a,b,c):\n    if ? :\n        return True\n#\n此函數定義為：檢查 a 的平方加上 b 的平方是否\n等於c的平方。請問程式中的?處填入下列何者可\n以正確達到目的？", "options": {"A": "(a^2 + b^2) = c^2", "B": "a^2 + b^2 == c^2", "C": "a**a + b**b == c**c", "D": "a*a + b*b == c**2", "E": "以上皆非"}, "answer": "D", "explanation": "平方可以寫 a*a 也可以寫\na**2。", "topic": "基本運算，codecompletion", "difficulty": "易"}, {"id": 37, "stem": "def f(a):\n    i = 0\n    while a%10 == 0:\n        i += 1\n            ?\n    return i\n#\n此函數定義為： 保證傳入的 a是一個正整數，回\n傳a的結尾有幾個0(十進制)，例如10300的結\n尾有2個0。請問程式中的?處應填入下列何者？", "options": {"A": "a -= 10", "B": "a//10", "C": "a //= 10", "D": "a >> 1", "E": "以上皆非"}, "answer": "C", "explanation": "每次除以10。", "topic": "推理程式的意義。", "difficulty": "中"}, {"id": 38, "stem": "t1 = t2 = 1\nwhile t2 <= 10000:\n        ?\nprint(t2)\n#\n費式數的定義為：f(1)=f(2)=1，對 i>2，\nf(i)=f(i-1)+f(i-2)。\n此程式要計算第一個大於 10000的費式數，程式\n中的?處應填入下列何者？", "options": {"A": "t1 = t2; t2 = t1+t2", "B": "t2 = t1+t2; t1 = t2", "C": "t3 = t1; t2 = t2+t3; t1 = t2", "D": "t1,t2 = t2,t1+t2", "E": "以上皆非"}, "answer": "D", "explanation": "=右邊先取值，再指定給左邊。", "topic": "指令的執行順序。多變數指定運算。", "difficulty": "中"}, {"id": 39, "stem": "t = 0\nfor i in range(10):\n    if not i%2:\n        i += 1\n    t += i\n    if t == 48: break\nelse:\n    t += 10\nprint(t)\n輸出為何？", "options": {"A": "60", "B": "50", "C": "55", "D": "48", "E": "執行錯誤Error"}, "answer": "A", "explanation": "若i偶數，t增加i+1，若i是奇數則 t增加i，留意i的值雖被改變，但下次迴圈仍是 range 的下一個值(與 C 語言不同)。t的值是(1+3+5+7+9)*2=50，顯然不會經過 48。for-else 的結構，如果順利完成，會執行 else 的部分，因此 t會再\n+10，若break則不執行 else。", "topic": "for與if的基本流程控制，for的變數運作方式，for-else的結構", "difficulty": "難"}, {"id": 40, "stem": "t = 0\nwhile t<20:\n    if t%2:\n        t *= 2\n    else: t += 1\nprint(t)\n輸出為何？", "options": {"A": "0", "B": "20", "C": "30", "D": "32", "E": "執行錯誤Error"}, "answer": "C", "explanation": "t是奇數的話加倍，偶數加一，\nt = 0,1,2,3,6,7,14,15,30", "topic": "while的基本流程控制", "difficulty": "中"}, {"id": 41, "stem": "t = 5\nwhile t<20:\n    t += t//2\n    if t%3 == 0:\n        break\nelse: t = -1\nprint(t)\n輸出為何？", "options": {"A": "-1", "B": "5", "C": "15", "D": "20", "E": "執行錯誤Error"}, "answer": "C", "explanation": "t=5,7,10,15", "topic": "while-else的基本流程控制", "difficulty": "中"}, {"id": 42, "stem": "t = 9\nwhile t<20:\n    t += t//2\n    if t%3 == 0:\n        break\nelse: t = -1\nprint(t)\n輸出為何？", "options": {"A": "-1", "B": "9", "C": "19", "D": "28", "E": "執行錯誤Error"}, "answer": "A", "explanation": "t=9,13,19,28,-1，因未break，\n會執行 else part", "topic": "while-else的基本流程控制", "difficulty": "中"}, {"id": 43, "stem": "t = 0\nfor i in range(10):\n    for j in range(1,10,2):\n        if (i+j)%5 == 0:\n            t += 1\nprint(t)\n輸出為何？", "options": {"A": "0", "B": "5", "C": "10", "D": "50", "E": "執行錯誤Error"}, "answer": "C", "explanation": "j的變化是(1,3,5,7,9)，\nj%5=(1,3,0,2,4)也就是對於任何i，\n恰有一個相加後為 5的倍數，所以答案是\n10。", "topic": "nestedfor的基本流程控制，range(a,b,c)的了解，簡單數學。", "difficulty": "難"}, {"id": 44, "stem": "cnt = 0\nfor t in (9,19,29,39,49):\n    for i in range(2,t):\n        if t%i == 0:\n            f = False\n            break\n    else: f = True\n    cnt += f\n#\nprint(cnt)\n輸出為何？", "options": {"A": "0", "B": "1", "C": "2", "D": "3", "E": "以上皆非或執行錯誤 Error"}, "answer": "C", "explanation": "迴圈內為檢驗是否為質數的程序，外面被檢測的中有 2個質數。", "topic": "nestedfor的基本流程控制，簡單數學，要能看得出來是整數是在測試因數，就可以理解f代表是否是質數。", "difficulty": "難"}, {"id": 45, "stem": "cnt = 0\nfor t in (-5,-1,5,11,13,15):\n    if t//5 >= 2:\n        for i in range(1,6):\n            t -= i\n        if t < 0:\n            t += 2\n    else:\n        t += 3\n    cnt += (t<0)\nprint(cnt)\n輸出為何？", "options": {"A": "1", "B": "2", "C": "3", "D": "4", "E": "以上皆非或執行錯誤 Error"}, "answer": "B", "explanation": "t<10時，會+3，所以 t<-3會得到負值。t≥10時，先減去(1+2+…5)=15，如果\n<0 會再加2，因此得到負值的是減去 15後\n<-2，也就是t≤12，也就是 10,11,12三者。總共有兩個：-5與11", "topic": "基本流程控制，簡單數學，推理。", "difficulty": "難"}, {"id": 46, "stem": "a = [1,-1,3,5,-7,0]\nprint(sum(a),max(a),len(a))\n輸出為何？", "options": {"A": "1 5 6", "B": "9 -7 5", "C": "17 5 6", "D": "1 -7 6", "E": "以上皆非或執行錯誤 Error"}, "answer": "A", "explanation": "基本函數的使用", "topic": "sum,max,len基本用法。", "difficulty": "易"}, {"id": 47, "stem": "a = [1,-1,3,5,-7,0]\nx = 3\nif x in a:\n    x -= 4\n    if x not in a:\n        x += 9\nelse: x = 99\nprint(x)\n輸出為何？", "options": {"A": "99", "B": "8", "C": "-1", "D": "3", "E": "以上皆非或執行錯誤 Error"}, "answer": "C", "explanation": "x in a 是成立的，x → -1，not\nin a 不成立，所以答案就是-1", "topic": "nestedif-else，inlist的邏輯運算。", "difficulty": "易"}, {"id": 48, "stem": "若 a=[]，b=[-1,1],c=[1,2,3]，考慮\n以下指令個別執行的結果。\n(1) t = sum(a)+max(b)\n(2) t = max(a)+min(c)\n(3) t = max(c)//sum(a+b)\n(4) a = b+a+[sum(a)]\n有幾個指令個別執行時會導致執行錯誤？", "options": {"A": "0", "B": "1", "C": "2", "D": "3", "E": "4"}, "answer": "C", "explanation": "max(a)會錯，因為 max內不得為空，\nsum(a+b)=0 在分母會錯。", "topic": "sum,max,min常用函數。常見執行錯誤。", "difficulty": "中"}, {"id": 49, "stem": "a = [2,-3,-1,6,0,3,5,6,8]\nt = 0\nfor v in a:\n    if v == 0: break\n    if v%2:\n        t *= 2\n    else:\n        v = 0\n        t += 1\nprint(a[0],t)\n輸出為何？", "options": {"A": "0 5", "B": "2 5", "C": "2 42", "D": "0 50", "E": "以上皆非或執行錯誤 Error"}, "answer": "B", "explanation": "偶數t加一，奇數t 乘2，遇到0離開，t值0,1,2,4,5。a未變動。a[0]=2", "topic": "對for-in的運作方式的了解。", "difficulty": "易"}, {"id": 50, "stem": "a = [[2,-3],[-1,6],[-3,3],[5,6]]\nt = 0\nfor v in a:\n    if sum(v) == 0: break\n    if max(v) > 3:\n        t *= 3\n        v = []\n    else:\n        v.clear()\n        t += 1\nprint(len(a[0]),len(a[1]),t)\n輸出為何？", "options": {"A": "0 0 3", "B": "0 2 3", "C": "2 2 3", "D": "0 2 12", "E": "以上皆非或執行錯誤 Error"}, "answer": "B", "explanation": "v=a[0] 時 ， v.clear() 會影響\na[0]，且t+1；v=a[1]時，t*3，但v=[]\n不影響 a[1]。v=a[2]時 break，a[3]未執行", "topic": "對for-in的運作方式的了解。list在被指向時，是否受影響。", "difficulty": "難"}, {"id": 51, "stem": "p = [True]*20\nfor i in range(2,20):\n    if not p[i]: continue\n    for m in range(i+i,20,i):\n        p[m] = False\nprint(sum(p[2:]))\n輸出為何？", "options": {"A": "8", "B": "9", "C": "10", "D": "11", "E": "執行錯誤Error"}, "answer": "A", "explanation": "找質數，20 以內的質數個數(2, 3,\n5, 7, 11, 13, 17, 19)共八個", "topic": "能看出在找質數。range的用法，[list]*c是重複，listslicing。布林轉整數。", "difficulty": "中"}, {"id": 52, "stem": "a = [8,3,1,5,0,7,4,2]\nn = len(a)\nfor j in range(3):\n    for i in range(1,n):\n        if a[i-1]>a[i]:\n            a[i-1],a[i] = a[i],a[i-1]\nprint(a)\n輸出為何？", "options": {"A": "[0,1,2,3,4,5,7,8]", "B": "[3,1,0,4,2,5,7,8]", "C": "[1,0,3,4,5,2,7,8]", "D": "[1,0,3,4,2,5,7,8]", "E": "以上皆非或執行錯誤 Error"}, "answer": "D", "explanation": "此為bubble sort前三回合\n[3,1,5,0,7,4,2,8]\n[1,3,0,5,4,2,7,8]\n[1,0,3,4,2,5,7,8]", "topic": "能看出運作方式後，用紙本很容易得到答案。變數交換的用法。", "difficulty": "中"}, {"id": 53, "stem": "a, b = [8,4,3,1], [0,4,5]\nd = []\nfor v in b:\n    while a and a[-1] <= v:\n        d.append(a.pop())\n    d.append(v)\nd += a\nprint(d)\n輸出為何？", "options": {"A": "[0,1,4,3,5,4,8]", "B": "[0,1,3,4,4,5,8]", "C": "[0,4,5,1,3,4,8]", "D": "[1,3,4,8,0,4,5]", "E": "以上皆非或執行錯誤 Error"}, "answer": "B", "explanation": "a 是遞減，b 是遞增，合併成\nsorted list", "topic": "推理程式碼運作的意義。", "difficulty": "中"}, {"id": 54, "stem": "考慮下面的程式片段\na, b = ?\nd = []\ni = 0\nfor v in b:\n    while i<len(a) and a[i] <= v:\n        d.append(a[i])\n        i += 1\n    d.append(v)\nprint(d)\n此程式是想要將 a,b 兩個遞增序列合併成一個遞\n增序列d，但此程式有個錯誤，請問下列哪一組測\n資放在第一行的?處，可以使得 d 不是想要的結\n果？", "options": {"A": "[], [1,4,5]", "B": "[1,2,3,4], [5,6,7,8]", "C": "[3,4,7,9], [2,5,8]", "D": "[1,3,5,7], [2,4,6,8]", "E": "以上皆非"}, "answer": "C", "explanation": "for之後最後漏了將 a的剩下部份放進d的尾端\nd += a[i:]\n所以 a 中>b[-1]的部份沒有在 d\n中，選項中只有(C)有此情形", "topic": "推理程式碼運作與偵錯能力。", "difficulty": "難"}, {"id": 55, "stem": "a = [[-1,-2],[1,2],[3,4]]\nd = []\nfor p in a:\n    if sum(p) < 0:\n        p = []\n    else:\n        d += p\nprint(d, sum(a[0]))\n輸出為何？", "options": {"A": "[[-1,-2],[1,2],[3,4]] -3", "B": "[1,2,3,4] -3", "C": "[1,2,3,4] 0", "D": "[-1,-2,1,2,3,4] 0", "E": "以上皆非或執行錯誤 Error"}, "answer": "B", "explanation": "每個row串接放在 d，a[0]不會被清為[]", "topic": "list被assign給變數，是否影響原list。for與if的流程。sum(list)", "difficulty": "中"}, {"id": 56, "stem": "a = [8,3,1,5,0,7,4,2]\nt1,t2 = -1,-1\nfor v in a:\n    if v%2: continue\n    if v > t1:\n        t1,t2 = v,t1\n    elif v > t2:\n        t2 = v\n#\nprint(t2)\n輸出為何？", "options": {"A": "8", "B": "7", "C": "4", "D": "2", "E": "以上皆非或執行錯誤 Error"}, "answer": "C", "explanation": "找第二大偶數。t1,t2是存最大與第二大偶數", "topic": "推理程式碼運作", "difficulty": "中"}, {"id": 57, "stem": "a = [1,2,3,4]\nb = a\nc = a[:]\nb[0] = 0\nprint(a[0],b[0],c[0])\n輸出為何？", "options": {"A": "0 0 1", "B": "1 0 1", "C": "0 0 0", "D": "1 1 1", "E": "以上皆非或執行錯誤 Error"}, "answer": "A", "explanation": "a,b指向同一 list，c是被複製出來獨立的", "topic": "list運作與複製", "difficulty": "易"}, {"id": 58, "stem": "a = ?\ni = a.index(max(a))\nj = a.index(min(a))\nif i < j:\n    b = a[j:]+a[:i+1]\nelse:\n    b = a[j:i+1]\nprint(b)\n以下選項中a 的初值與輸出的敘述何者錯誤？", "options": {"A": "若a=[2,1,3,4,5]，則輸出為[1,3,4,5]", "B": "若a=[3,6,3,1,5]，則輸出為[1,5,3,6]", "C": "若a=[1,1,1,1]，則輸出為[1]", "D": "若a=[4,3,3,1]，則輸出為[1,3,3,4]", "E": "以上皆無錯誤或執行錯誤 Error"}, "answer": "D", "explanation": "從最小值位置到最大值位置，把a看成環狀，(D)的結果應該是[1,4]", "topic": "listslicing,max,min,index與串接用法。", "difficulty": "中"}, {"id": 59, "stem": "total = imax = 0\nfor i in range(16):\n    cnt = 0\n    while i>0:\n        if i&1: cnt += 1\n        i >>= 1\n    if cnt > imax:\n        imax = cnt\n    total += cnt\nprint(imax, total)\n輸出為何？", "options": {"A": "5 30", "B": "4 30", "C": "4 32", "D": "4 34", "E": "以上皆非或執行錯誤 Error"}, "answer": "C", "explanation": "迴圈內是計算二進位表示時1-bit的個數，imax 是最大，所以是 4 (i=15,\n1111)，要計算1-bit 總數，每個 bit剛好有一半是 1 ， 所以 total =\n4*(16/2)=32", "topic": "binarycode，推理程式碼運作，計算總和要有點數學推理", "difficulty": "難"}, {"id": 60, "stem": "a = (10 << 3)\nb = (a&(a-1))\nprint(a-b)\n輸出為何？", "options": {"A": "0", "B": "16", "C": "32", "D": "64", "E": "以上皆非或執行錯誤 Error"}, "answer": "B", "explanation": "由二進位表示法去看\na = 1010 << 3 = 1010000\nb = 1000000\na-b 就是10000 = 16\na&(a-1)是去除最後一個1", "topic": "binarycode", "difficulty": "難"}, {"id": 61, "stem": "k = 0b?\na = [8,3,1,5,0,7,4,2]\nt = 0\nfor i in range(8):\n    if k & (1<<i):\n        t += a[i]\nprint(t)\n註： 0b是二進位表示的意思，例如0b1101 就是十\n進制整數13。\n以下選項中k 的初值與輸出的敘述何者錯誤？", "options": {"A": "若k=0b00000101，則輸出為 9", "B": "若k=0b10100010，則輸出為 12", "C": "若k=0b10000001，10", "D": "若k=0b00110000，則輸出為 6", "E": "以上皆無錯誤或執行錯誤 Error"}, "answer": "D", "explanation": "k的二進位表示中 1-bit的位置就是a中要被加入總和的元素，例如k=0b101，t=a[0]+a[2]。要注意高位元與低位元的位置\n(D)錯誤，因為t=a[4]+a[5]=7", "topic": "位元運算", "difficulty": "中"}, {"id": 62, "stem": "def chk(s):\n    n = len(s)//2\n    return s[:n] == s[:-n-1:-1]\n#\n以下選項中傳入值s 與回傳值的敘述何者錯誤？", "options": {"A": "chk('xxarx')回傳 True", "B": "chk('a')回傳True", "C": "chk('abba')回傳 True", "D": "chk('abab')回傳 False", "E": "以上皆無錯誤或執行錯誤 Error"}, "answer": "A", "explanation": "此函數判斷字串是否為迴文", "topic": "字串slicing，函數定義", "difficulty": "中"}, {"id": 63, "stem": "def chk(s):\n    n = len(s)\n    for i in range(n//2):\n        if s[i] != s[n-1-i]:\n            return i\n    return -1\n#\n以下選項中傳入值s 與回傳值的敘述何者錯誤？", "options": {"A": "chk('xxarx')回傳 1", "B": "chk('abccba')回傳-1", "C": "chk('wa')回傳0", "D": "chk('ababbba')回傳3", "E": "以上皆無錯誤或執行錯誤 Error"}, "answer": "D", "explanation": "由外而內找第一個不對稱的位置，(D)答案應該是 2", "topic": "字串與函數定義。看懂程式的意義", "difficulty": "中"}, {"id": 64, "stem": "a = 3\ndef f(k):\n    a = 4\n    k += 2\n    return a+k\n#\nb = 1\nc = f(b)+a\nprint(b,c)\n輸出為何？", "options": {"A": "3 11", "B": "1 10", "C": "1 11", "D": "3 10", "E": "以上皆非或執行錯誤 Error"}, "answer": "B", "explanation": "a,b 值不會改變，副程式內的\na是區域變數", "topic": "參數傳遞與區域/全域變數", "difficulty": "中"}, {"id": 65, "stem": "a = 3\ndef f(k):\n    a += 2\n    k = 4\n    return a+k\n#\nb = 1\nc = f(b)+a\nprint(b,c)\n輸出為何？", "options": {"A": "1 12", "B": "4 12", "C": "1 9", "D": "4 9", "E": "以上皆非或執行錯誤 Error"}, "answer": "E", "explanation": "函數內的a會被認為是區域變數，但無初值不可以做 += 運算，執行錯誤", "topic": "參數傳遞與區域/全域變數", "difficulty": "中"}, {"id": 66, "stem": "a = 3\nb = 1\ndef f(a):\n    a += 2\n    b = 4\n    return a+b\n#\nc = f(b)+a\nprint(b,c)\n輸出為何？", "options": {"A": "1 14", "B": "4 14", "C": "1 10", "D": "1 12", "E": "以上皆非或執行錯誤 Error"}, "answer": "C", "explanation": "函數內的a是參數，算是區域變數，傳進來是 b=1，所以 a+=2變成3，函數內b是區域變數，值是 4。\n回傳 7。全域的 a,b 值未改變，\nc=7+3=10", "topic": "參數傳遞與區域/全域變數", "difficulty": "中"}, {"id": 67, "stem": "a,b = 3,[1,2]\ndef f(p,q):\n    p += 2\n    q[0] = 0\n    return p+sum(q)\n#\nd = f(a,b)\nprint(a,b,d)\n輸出為何？", "options": {"A": "3 [1,2] 7", "B": "5 [0,2] 7", "C": "3 [0,2] 7", "D": "5 [1,2] 8", "E": "以上皆非或執行錯誤 Error"}, "answer": "C", "explanation": "list是mutable，參數會被修改", "topic": "list參數傳遞與區域/全域變數", "difficulty": "中"}, {"id": 68, "stem": "def f(s):\n    s *= 2\n    return s+'wa'\n#\nt = 'ab'\ns = 'www'\nc = f(t)+s\nprint(c,t)\n輸出為何？", "options": {"A": "wwwwwwwawww ab", "B": "wwwwwwwawww abab", "C": "ababwawww abab", "D": "ababwawww ab", "E": "以上皆非或執行錯誤 Error"}, "answer": "D", "explanation": "字串是immutable，傳遞過去不會變動。函數內的 s是外部傳過來的t='ab'，回傳ababwa。", "topic": "字串參數傳遞與區域/全域變數", "difficulty": "中"}, {"id": 69, "stem": "def f(s):\n    cnt = [0]*26\n    for c in s:\n        if c<'a' or c>'z': return -1\n        cnt[ord(c)-ord('a')] += 1\n    return max(cnt)\n#\n以下選項中傳入值s 與回傳值的敘述何者錯誤？", "options": {"A": "f('xxBarx')回傳-1", "B": "f('abccbac')回傳 3", "C": "f('waxyz')回傳 1", "D": "f('aaaaabbbb')回傳5", "E": "以上皆無錯誤或執行錯誤 Error"}, "answer": "E", "explanation": "函數計算最多出現的字母次數，若有非小寫字母回傳-1。選項皆無錯誤", "topic": "字串與list運算", "difficulty": "中"}, {"id": 70, "stem": "def g(x,y):\n    if y == 0: return x\n    if x >= y: return g(x-y,y)\n    return g(y,x)\n#\na = [3,5,12,18]\nans = 0\nfor i in range(3):\n    ans += g(a[i],a[i+1])\nprint(ans)\n輸出為何？", "options": {"A": "3", "B": "8", "C": "10", "D": "12", "E": "以上皆非或執行錯誤 Error"}, "answer": "B", "explanation": "此函數為 gcd，a 中相鄰數的\ngcd分別是1,1,6，總和 8", "topic": "遞迴。要推理出此函數在算gcd", "difficulty": "難"}, {"id": 71, "stem": "def g(x,y):\n    if x < 2: return y\n    return g(x-2,y+1)\n#\na = [1,5,20,8]\nb = [3,1,20,0]\nans = sum(g(a[i],b[i]) for i in range(4))\nprint(ans)\n輸出為何？", "options": {"A": "40", "B": "45", "C": "52", "D": "58", "E": "以上皆非或執行錯誤 Error"}, "answer": "A", "explanation": "推理函數所做的運算，每次\nx-2，y+1，(皆非負)，所以此函數回傳是y+x//2，\n3+(1+2)+(20+10)+4=40", "topic": "遞迴。sum的表示生成式用法。(comprehension)", "difficulty": "中"}, {"id": 72, "stem": "def g(x,y):\n    t = 0\n    while x > 1 and y > 0:\n        t += 1\n        x, y = x-2, y-1\n    return t\n#\na = [1,5,20,9]\nb = [3,1,11,4]\nans = sum(g(u,v) for u,v in zip(a,b))\nprint(ans)\n輸出為何？", "options": {"A": "17", "B": "16", "C": "15", "D": "14", "E": "以上皆非或執行錯誤 Error"}, "answer": "C", "explanation": "每次x-2，y-1，(皆非負)所以函數回傳是min(x//2,y)\nans= min(1//2,3) + min(5//2,1) +\nmin(20//2,11) + min(9//2,4) =\n0+1+10+4=15", "topic": "推理函數所做的運算，sum的表示生成式用法，zip", "difficulty": "中"}, {"id": 73, "stem": "def g(d):\n    if d%2 == 0: return f(d//2)+1\n    return f(d)\n#\ndef f(d):\n    if d == 1: return 0\n    if d%2==1: return g(3*d+1)+1\n    return g(d)\n#\nans = sum(f(i) for i in (1,2,3,4))\nprint(ans)\n輸出為何？", "options": {"A": "7", "B": "8", "C": "9", "D": "10", "E": "以上皆非或執行錯誤 Error"}, "answer": "D", "explanation": "此函數是3n+1，即偶數除以 2\n奇數變 3n+1，回傳經過幾回合變成\n1，輸入3時\n(3,10,5,16,8,4,2,1)，7回合。\nans= 0+1+7+2=10", "topic": "兩函數遞迴，推理函數所做的運算再去算答案", "difficulty": "難"}, {"id": 74, "stem": "def g(d):\n    d = [1,2,3]\n    return sum(d)\nd = [4,5,6]\nw = g(d)\nprint(w,d)\n輸出為何？", "options": {"A": "6 [4,5,6]", "B": "6 [1,2,3]", "C": "15 [4,5,6]", "D": "15 [1,2,3]", "E": "以上皆非或執行錯誤 Error"}, "answer": "A", "explanation": "函數中的d雖是傳遞過來的，\n但仍是區域變數，一開始指向全域的\nd，但改指向[1,2,3]計算sum，全域的d並未改變。", "topic": "list參數傳遞與區域/全域變數", "difficulty": "中"}, {"id": 75, "stem": "def g(s,ans):\n    if not s: return\n    imax = max(s)\n    i = s.index(imax)\n    ans.append(imax)\n    g(s[i+1:],ans)\n    return\n#\nans = []\ng([5,2,9,4,5,6,3,4,1],ans)\nprint(ans)\n輸出為何？", "options": {"A": "[9,5,6]", "B": "[9,6,4,1]", "C": "[9,5,6,1]", "D": "[9,6,3,4,1]", "E": "以上皆非或執行錯誤 Error"}, "answer": "B", "explanation": "先找最大然後遞迴右邊。", "topic": "遞迴。list操作。推理出函數的意義，再找答案。", "difficulty": "中"}, {"id": 76, "stem": "a = [3,4,1,5,2,4,2,6,9,7,8]\ns = []\nfor v in a:\n    while s and s[-1]>=v:\n        s.pop()\n    s.append(v)\n#\nprint(s)\n輸出為何？", "options": {"A": "[3,4,5,6,7,8]", "B": "[1,2,4,6,7,8]", "C": "[1,2,6,7,8]", "D": "[1,2,2,6,7,8]", "E": "以上皆非或執行錯誤 Error"}, "answer": "C", "explanation": "s中維護遞增子序列(無等號)。", "topic": "stack,list操作。推理出函數的意義，tracing。", "difficulty": "中"}, {"id": 77, "stem": "def f(a):\n    t = 0\n    for v in a:\n        if v>t or –v>t:\n            t = v\n    return t\n#\n以下選項中傳入值與回傳值的敘述何者錯誤？", "options": {"A": "f([4,1,9,5,3])回傳9", "B": "f([-4,-1,-5])回傳-5", "C": "f([-4,1,-5,1])回傳-5", "D": "f([4,-1,-5,1,-9])回傳-9", "E": "以上皆無誤"}, "answer": "C", "explanation": "絕對值大的會變成 t，但如果 t\n是負值，下一個任何值都會取代它", "topic": "推理出函數的意義，再找答案。", "difficulty": "難"}, {"id": 78, "stem": "a = [3,1,6,4,9,5,7]\nn = len(a)\nfor i in range(n):\n    if a[i]>a[i+1]:\n        a[i],a[i+1] = a[i+1],a[i]\n#\nprint(a)\n輸出為何？", "options": {"A": "[1,3,4,5,6,7,9]", "B": "[1,3,4,6,5,7,9]", "C": "[1,3,4,6,5,7,0]", "D": "[1,3,4,6,5,7,0,9]", "E": "以上皆非或執行錯誤 Error"}, "answer": "E", "explanation": "bubble sort一回合，但index\n範圍寫錯，會out of range。\n應該寫range(n-1)。", "topic": "list常見錯誤。", "difficulty": "中"}, {"id": 79, "stem": "a = [1,2,4,4,5,7,7,8]\nn = len(a)\ndef f(v):\n    i = 0\n    while a[i] < v:\n        i += 1\n    return i\n#\n以下選項中v 與回傳值的敘述何者錯誤？", "options": {"A": "f(0)回傳0", "B": "f(6)回傳5", "C": "f(4)回傳2", "D": "f(9)回傳8", "E": "以上皆無錯誤"}, "answer": "D", "explanation": "while迴圈i 的上限忘記寫，\nv=9時會執行錯誤。", "topic": "常見錯誤。", "difficulty": "中"}, {"id": 80, "stem": "def chk(s):\n    i,j = 0,len(s)-1\n    cost = 0\n    while i<j:\n        if s[i] != s[j]:\n            cost += 1\n            s[j] = s[i]\n        i,j = i+1,j-1\n    return cost\n#\n以下選項中傳入值s 與回傳值的敘述何者正確？", "options": {"A": "chk('xxarx')回傳 2", "B": "chk('abc')回傳 2", "C": "chk('yxarx')回傳 2", "D": "chk('abab')回傳 0", "E": "以上皆不正確"}, "answer": "E", "explanation": "字串是 immutable 不能更改其中的字元", "topic": "常見錯誤。", "difficulty": "中"}, {"id": 81, "stem": "def chk(s):\n    i,j = 0,len(s)-1\n    while i<j:\n        if s[i] != s[j]:\n            cost += 1\n        i,j = i+1,j-1\n    return cost\n#\n以下選項中傳入值s 與回傳值的敘述何者正確？", "options": {"A": "chk('xxarx')回傳 2", "B": "chk('abc')回傳 2", "C": "chk('yxarx')回傳 2", "D": "chk('abab')回傳 0", "E": "以上皆不正確"}, "answer": "E", "explanation": "cost初值未設，執行錯誤", "topic": "常見錯誤。", "difficulty": "易"}, {"id": 82, "stem": "def f(s):\n    i,j = 0,len(s)-1\n    cost = 0\n    while i<j:\n        if s[i] != s[j]:\n            cost += min(int(s[i]),int(s[j]))\n        i,j = i+1,j-1\n    return cost\n#\nv = 93010307435\nprint(f(str(v)))\n輸出為何？", "options": {"A": "6", "B": "8", "C": "9", "D": "12", "E": "以上皆非或執行錯誤 Error"}, "answer": "A", "explanation": "第i個與倒數第 i個不同時加上較小的", "topic": "推理函數的意義。", "difficulty": "中"}, {"id": 83, "stem": "idx = [3,0,5,1]\np = [5,4,3,2,1]\ntotal = 0\nfor i in idx:\n    if p[i]<5 and i<len(p):\n        total += p[i]\n#\nprint(total)\n輸出為何？", "options": {"A": "11", "B": "6", "C": "15", "D": "4", "E": "以上皆非或執行錯誤 Error"}, "answer": "E", "explanation": "想要將idx所指位置的值小於5的相加，答案與說明：預期是 4+2=6，但if\n的short-circuit 保護寫反了，會產生index out of range 的錯誤。", "topic": "short-circuit。常見錯誤。", "difficulty": "難"}, {"id": 84, "stem": "a = [3,1,2,0,5]\np = 12\ncnt = 0\nfor v in a:\n    if (p%v == 0) and (v != 0):\n        cnt += 1\n#\nprint(cnt)\n輸出為何？", "options": {"A": "0", "B": "1", "C": "2", "D": "3", "E": "以上皆非或執行錯誤 Error"}, "answer": "E", "explanation": "想要計算p的倍數有幾個，預期有三個，但 if 的兩條件寫反了，沒有\nshort-circuit保護，產生執行錯誤", "topic": "short-circuit。常見錯誤。", "difficulty": "中"}, {"id": 85, "stem": "a = [0,1,4,2,0,-3,2,0]\np = 3\nwhile True:\n    if a[p]==0 or p<0 or p>=8:\n        break\n    p += a[p]\n#\nprint(p)\n輸出為何？", "options": {"A": "0", "B": "4", "C": "7", "D": "8", "E": "以上皆非或執行錯誤 Error"}, "answer": "E", "explanation": "每次前進a[p]距離，負值為倒退，\n直到碰到 0 或者出界，if 的條件寫反了，沒有short-circuit 保護，執行錯誤", "topic": "short-circuit。常見錯誤。", "difficulty": "中"}, {"id": 86, "stem": "a = [0,-1,4,2,0,-3,-2,5,1,-8,-3]\ndef f(i):\n    while 0<=i<len(a):\n        if a[i]==0:\n            return i\n        i += a[i]\n    return -1\n#\np = [f(1),f(3),f(8),f(10)]\nprint(p)\n輸出為何？", "options": {"A": "[0,4,-1,-1]", "B": "[0,4,0,-1]", "C": "[1,-1,4,-1]", "D": "[0,-1,0,-1]", "E": "以上皆非或執行錯誤 Error"}, "answer": "B", "explanation": "每次前進a[i]距離，負值為倒退，\n直到碰到 0 或者出界，出界回傳-1，否則回傳停下來的位置每一格走過了之後，下次再走到不必重複走，可以很快的用紙筆模擬答案與說明：", "topic": "一維陣列模擬", "difficulty": "中"}, {"id": 87, "stem": "a = [0,1,2,3,4,5,6,7]\np = a[1:3]+a[4:9:2]\na[1] = 9\nprint(p)\n輸出為何？", "options": {"A": "[1,2,4,6]", "B": "[9,2,4,6]", "C": "[1,2,4,5,6,7]", "D": "[1,2,3,4,6]", "E": "以上皆非或執行錯誤 Error"}, "answer": "A", "explanation": "list slicing", "topic": "list的slicing以及複製與串接", "difficulty": "易"}, {"id": 88, "stem": "a = [[0,1],[2,3],[4,5]]\np = [a[1],a[0]]\na[1] = 9\na[0][0] = 9\nprint(p)\n輸出為何？", "options": {"A": "[[2,3],[0,1]]", "B": "[9,[0,1]]", "C": "[[2,3],[9,1]]", "D": "[9,[9,1]]", "E": "以上皆非或執行錯誤 Error"}, "answer": "C", "explanation": "一開始 p=[[2,3],[0,1]] ，\na[1]=9，不會改變 p，a[0][0]=9 時，\np[1]與 a[0]指向相同的[0,1]，兩者皆被影響", "topic": "listoflist二維陣列。變數指向list的修改", "difficulty": "中"}, {"id": 89, "stem": "a = ['wa','tle','ac']\np = [a[0],a[1]]\na[1] += 'Omg'\na[0] = 'ce'\n執行後p的內容為何？", "options": {"A": "['wa','tle']", "B": "['wa','tleOmg']", "C": "['ce','tle']", "D": "['ce','tleOmg']", "E": "以上皆非或執行錯誤 Error"}, "answer": "A", "explanation": "字串是immutable，copy過去就是獨立的", "topic": "listofstring", "difficulty": "中"}, {"id": 90, "stem": "def f(t):\n    r = ''\n    for ch in t:\n        if int(ch)%3 == 0:\n            r += '0'\n        else:\n            r += ch\n    return r\n#\ns = f('12346')\nt = f('96134')\ns = f(s+t[: : -1])\nprint(s)\n輸出為何？", "options": {"A": "1234696134", "B": "1234643169", "C": "4010004021", "D": "1204040100", "E": "以上皆非或執行錯誤 Error"}, "answer": "D", "explanation": "3 的倍數改成 0。t[: :-1]是反轉，先反轉後串接，再傳入一次沒有作用", "topic": "stringslicing，參數傳遞", "difficulty": "中"}, {"id": 91, "stem": "a = \"127037265\"\nwhile len(a) > 1:\n    tem = \"\"\n    for i in range(0,len(a),2):\n        p = int(a[i:i+2])\n        tem += str(p//10 + p%10)\n    a = tem\n#\nprint(a)\n輸出為何？", "options": {"A": "4", "B": "6", "C": "7", "D": "8", "E": "以上皆非或執行錯誤 Error"}, "answer": "B", "explanation": "每 2 位切成一個數字，個位與十位相加寫下來，重複此步驟直到剩下一位。\n371085\n10113\n注意不會奇數位數不會 error", "topic": "string。模擬與推理程式的意義。", "difficulty": "難"}, {"id": 92, "stem": "def f(a):\n    while True:\n        s1 = str(a)\n        s2 = s1[: : -1]\n        if s1 == s2: return a\n        a = int(s1)+int(s2)\n    return -1\n#\nprint(f(2371),f(932),f(1221))\n輸出為何？", "options": {"A": "7117 1441 1221", "B": "6226 2822 3553", "C": "7117 2882 1221", "D": "6226 1441 3553", "E": "以上皆非或執行錯誤 Error"}, "answer": "C", "explanation": "reverse and add: 將整數反轉後與原數相加，直到成為迴文數字。\n2371 → 4103 → 7117\n932 → 1171 → 2882\n1221", "topic": "string。模擬與推理程式的意義。", "difficulty": "難"}, {"id": 93, "stem": "a = ['1110','1010','0011','1110']\nw = ''\nfor i,r in enumerate(a):\n    w += r[i]\nprint(w)\n輸出為何？", "options": {"A": "1110", "B": "1010", "C": "0101", "D": "1101", "E": "以上皆非或執行錯誤 Error"}, "answer": "B", "explanation": "對角線串接", "topic": "二維陣列", "difficulty": "中"}, {"id": 94, "stem": "a = ['abcd','pqrs','1234']\ns = ''\nfor i in range(4):\n    for r in a:\n        s += r[i]\nprint(s)\n輸出為何？", "options": {"A": "abcdpqrs1234", "B": "aaaapppp1111", "C": "aq3br4cs1dp2", "D": "ap1bq2cr3ds4", "E": "以上皆非或執行錯誤 Error"}, "answer": "D", "explanation": "依照 column major 串接字串。", "topic": "二維陣列。", "difficulty": "中"}, {"id": 95, "stem": "def fj(s,d):\n    if not s: return ''\n    t = ''\n    for ch in s[:-1]:\n        t += ch+d\n    return t+s[-1]\n#\ns1 = fj('qw','-')\ns2 = fj(['03','14','2025'],'/')\ns3 = fj(list('post'),'')\nprint(s1,s2,s3)\n輸出為何？", "options": {"A": "q-w- 03/14/2025/ post", "B": "-qw- /03142025/ ['post']", "C": "q-w 03/14/2025 post", "D": "q-w 03/14/2025 ['post']", "E": "以上皆非或執行錯誤 Error"}, "answer": "C", "explanation": "join函數的實作，以 d為間隔串接s(list of string)", "topic": "string。模擬與推理程式的意義。", "difficulty": "難"}, {"id": 96, "stem": "def f(i,j):\n    if a[i][j] == '0': return 0\n    v[i][j] = True\n    cnt = 1\n    for p,q in ((i,j+1),(i+1,j),(i,j-1),(i-1,j)):\n        if 0<=p<4 and 0<=q<10 and not v[p][q]:\n            cnt += f(p,q)\n    return cnt\n#\na = ['0110001101',\n        '1011101101',\n        '1101110111',\n        '1100100010']\nv = [[False]*10 for i in range(4)]\nx,y,z = f(1,3),f(0,3),f(2,9)\nprint(x,y,z)\n輸出為何？", "options": {"A": "9 1 9", "B": "10 0 5", "C": "10 0 9", "D": "9 0 10", "E": "以上皆非或執行錯誤 Error"}, "answer": "D", "explanation": "很標準的 DFS寫法，以上下左右為聯通，計算連通區塊的大小，DFS\n用字串且對齊位置，讓人眼比較好看出答案。", "topic": "遞迴。推理程式的意義。二維陣列。", "difficulty": "難"}, {"id": 97, "stem": "def f(a):\n    if not a: return []\n    p = 0\n    for i in range(1,len(a)):\n        if a[i] < a[p]: p = i\n    return [a[p]]+f(a[:p])+f(a[p+1:])\n#\nq = [3,4,2,7,0,8,1,3,2]\nprint(f(q))\n輸出為何？", "options": {"A": "[0,1,2,2,3,3,4,7,8]", "B": "[0,2,3,4,7,1,8,2,3]", "C": "[0,2,3,4,7,1,2,3,8]", "D": "[0,2,3,4,7,1,8,3,2]", "E": "以上皆非或執行錯誤 Error"}, "answer": "B", "explanation": "分治的標準型，找最小值放在前面，分左右遞迴\nf([3,4,2,7,0,8,1,3,2])\n=[0]+f([3,4,2,7])+f(8,1,3,2])\n=[0]+[2]+f([3,4])+f([7])+\n[1]+f([8])+f([3,2])\n=[0,2,3,4,7,1,8,2,3]", "topic": "遞迴。推理程式的意義。二維陣列。", "difficulty": "難"}, {"id": 98, "stem": "def b(x):\n    le,ri = 0,7\n    while le < ri:\n        mid = (le+ri)//2\n        if x == a[mid]: return mid\n        if x < a[mid]:\n            ri = mid-1\n        else:\n            le = mid\n    return le\n#\na = [0,3,6,9,12,15,18,20]\n以下呼叫與結果何者錯誤？", "options": {"A": "b(-1)回傳0", "B": "b(5)回傳2", "C": "b(18)回傳6", "D": "b(30)程式不會正常結束", "E": "以上皆非"}, "answer": "B", "explanation": "寫壞的二分搜，只有在 a中或\n<0會正確回傳第一個≥x的位置，其他會導致無窮迴圈當le+1=ri時，mid = le，會執行le = mid，因此 le,ri並無改變", "topic": "偵錯。推理程式的意義。", "difficulty": "難"}, {"id": 99, "stem": "low,up = 1.0, 2.0\neps = 0.0001\nx = 2.0\ncnt = 0\nwhile up - low > eps:\n    cnt += 1\n    mid = (low+up)/2\n    if mid*mid > x:\n        up = mid\n    else: low = mid\n#\nprint(low,cnt)\n此程式計算根號 2 的近似值，其中 cnt 的值是迴\n圈的次數，也表示程式的效率。cnt最後輸出的值\n在下列何範圍？", "options": {"A": "0 ~ 50", "B": "51 ~ 100", "C": "101 ~ 500", "D": "501 ~ 1000", "E": "1000以上"}, "answer": "A", "explanation": "二分搜，區間不超過 10000，\n次數大約14次2^14>10000", "topic": "時間複雜度。", "difficulty": "中"}, {"id": 100, "stem": "a = []\nfor i in range(n):\n    for j in range(m):\n        a.append(i+j)\n#\n此程式片段的時間複雜度以 m,n 表示為下列何\n者？", "options": {"A": "O(m+n)", "B": "O(mn)", "C": "O(m/n)", "D": "O(m2+n2)", "E": "以上皆非"}, "answer": "B", "explanation": "雙迴圈執行次數", "topic": "時間複雜度。", "difficulty": "易"}, {"id": 101, "stem": "a = []\nfor i in range(n):\n    a = [i]+a\n#\n此程式片段的時間複雜度以 n 表示為下列何者？", "options": {"A": "O(n)", "B": "O(nlog(n))", "C": "O(n2)", "D": "O(n3)", "E": "以上皆非"}, "answer": "C", "explanation": "每次 O(i)總和 O(1+2+…n)=\nO(n2)", "topic": "時間複雜度。", "difficulty": "中"}, {"id": 102, "stem": "def f(a,i,v):\n    if i < 0: return 0\n    p = f(a,i-1,v+a[i])\n    q = f(a,i-1,v)\n    return max(p,q)\n#\n以f(p,n-1,0)呼叫此函數，其中 n是列表p\n長度，則worst case 時間複雜度以n表示為下\n列何者？", "options": {"A": "O(n)", "B": "O(n2)", "C": "O(n!)", "D": "O(2n)", "E": "以上皆非"}, "answer": "D", "explanation": "暴搜子集合", "topic": "時間複雜度。", "difficulty": "難"}, {"id": 103, "stem": "def f(k):\n    for i in range(k):\n        if i*i > k:\n            return i\n#\np = 0\nfor i in range(n):\n    p += f(i)\n#\n此程式的worst case 時間複雜度以n表示為下\n列何者？", "options": {"A": "O(n3/2)", "B": "O(nlog(n))", "C": "O(n1/2)", "D": "O(n2)", "E": "以上皆非"}, "answer": "A", "explanation": "f(k)的時間是根號 k，(根號\n1+根號2+…根號n) = O(n^1.5)", "topic": "時間複雜度。", "difficulty": "難"}, {"id": 104, "stem": "def f(p,q):\n    if q < p+5: return (p+q)//2\n    s = 0\n    for i in range(p,q):\n        s += i\n    #\n    m = (p+q)//2\n    return f(p,m)+f(m+1,q)+s\n#\n以f(0,n)呼叫此函數，則 worst case時間複\n雜度為下列何者？", "options": {"A": "O(2n)", "B": "O(nlog(n))", "C": "O(n)", "D": "O(n2)", "E": "以上皆非"}, "answer": "B", "explanation": "分治 T(n)=2T(n/2)+O(n)，\nT(n)=O(nlog(n))。注意時間複雜度不是返回的數值。", "topic": "時間複雜度。", "difficulty": "難"}, {"id": 105, "stem": "s = 0\nfor i in range(1,n):\n    for j in range(i,n,i):\n        s += 1\n#\nprint(s)\n此程式片段的時間複雜度以 n 表示，則下列何者\n為最準確的表示式？", "options": {"A": "O(n)", "B": "O(nlog(n))", "C": "O(n2)", "D": "O(n3)", "E": "以上皆非"}, "answer": "B", "explanation": "n(1+1/2+1/3+1/4…) = O(nlog(n))", "topic": "時間複雜度。", "difficulty": "難"}, {"id": 106, "stem": "s = 0\nn = len(a)\nfor i in range(n):\n    s += sum(a[i:]):\n#\na是一個整數list，此程式片段的時間複雜度以\na的長度n表示，則下列何者為最準確的表示式？", "options": {"A": "O(n)", "B": "O(nlog(n))", "C": "O(n2)", "D": "O(n3)", "E": "以上皆非"}, "answer": "C", "explanation": "sum(a[i:])的時間是 O(n-\ni)，所以總時間是(1+2+3…n) =\nO(n2)", "topic": "時間複雜度。", "difficulty": "中"}, {"id": 107, "stem": "def f(a,x):\n    p = len(a)//2\n    q = 0\n    while p > 0:\n        if q+p<len(a) and a[q+p] < x:\n            q += p\n        p //= 2\n    #\n    return q\n#\n此函數被呼叫時，傳入的 a是一個整數list，而\nx是一個整數。此函數的時間複雜度以 a的長度\n來表示的話，則下列何者為其 worst case時間\n複雜度？", "options": {"A": "O(1)", "B": "O(log(n))", "C": "O(n)", "D": "O(nlog(n))", "E": "以上皆非"}, "answer": "B", "explanation": "p每次減半，log(n)次之後變成 0，迴圈內為 O(1)，故複雜度為\nO(logn)。\n此程式未必是執行二分搜，但只要看時間複雜度，while 內是 O(1)，p\n每次折半。", "topic": "時間複雜度。n", "difficulty": "中"}, {"id": 108, "stem": "def small(a,b):\n    m,n = len(a),len(b)\n    for i in range( q1 ):\n        if a[i] < b[i]: return True\n        if a[i] > b[i]: return False\n    #\n    return q2\n#\n此函數定義為：a字串的「字典序」小於 b字串時\n回傳 True，請問程式中的 q1 與 q2 為下列何者\n時可以符合定義？", "options": {"A": "q1: min(m,n), q2: (a[i]<b[i])", "B": "q1: min(m,n), q2: (m<n)", "C": "q1: max(m,n), q2: (a[i]<b[i])", "D": "q1: max(m,n), q2: False", "E": "以上皆非"}, "answer": "B", "explanation": "迴圈比較到min(m,n)，若未分大小，a比較短的時候回傳 True", "topic": "推理程式的意義。字典序的定義。", "difficulty": "中"}, {"id": 109, "stem": "def small(a,b): # len(a)==len(b)\n    n = len(a)\n    i = 0\n    while i<n and a[i]==b[i]:\n        i += 1\n    #\n    return ?\n#\n此函數定義為： a 字串的「字典序」小於 b字串\n時回傳True，輸入保證傳入的 a與b長度相等。\n請問程式中的?處應填入下列何者？", "options": {"A": "a[i]<b[i] and i<n", "B": "i>=n or a[i]<b[i]", "C": "i<n or a[i]<b[i]", "D": "i<n and a[i]<b[i]", "E": "以上皆非"}, "answer": "D", "explanation": "迴圈找到第一個不相同位置，但不能超範圍。迴圈結束後，若 i==n\n則 a==b(不符合 True 的定義)，否則，a[i]與b[i]不同，a[i]小則回傳True。\n注意(A)的寫法可能導致錯誤", "topic": "推理程式的意義。字典序的定義。短路", "difficulty": "中"}, {"id": 110, "stem": "def f(a,b,mod):\n    result = 1\n    while b:\n        if ?1 :\n            result = (result*a)%mod\n            ?2\n        a = (a*a)%mod\n    #\n    return result\n#\n此函數利用 b 的二進位表示法來快速計算 a\n次方除以 mod 的餘數，其中 a,b,mod 皆正整數\n且 mod 不為 0。請問程式中的?1 與?2 處應填入\n下列何者？", "options": {"A": "q1: b%10, q2: b //= 10", "B": "q1: b&result, q2: b >>= 1", "C": "q1: b&1, q2: b >>= 1", "D": "q1: b^1, q2: b //= 2", "E": "以上皆非"}, "answer": "C", "explanation": "b 為奇數時將 a 乘進去。每一回合b右移一位。", "topic": "推理程式的意義。二進位。", "difficulty": "中"}, {"id": 111, "stem": "def f(a,b):\n    n = 0\n    for v in a:\n        if ? :\n            n += v\n    return n\n#\n此函數定義為： 計算並回傳 list a中b的倍數\n的總和。請問程式中的?處應填入下列何者？", "options": {"A": "v%b == 0", "B": "v%b", "C": "a[v]%b == 0", "D": "b in v", "E": "以上皆非"}, "answer": "A", "explanation": "檢查是否為倍數。", "topic": "基本運算，codecompletion", "difficulty": "易"}, {"id": 112, "stem": "def f(s):\n    q = []\n    for c in s:\n        if c < 0: q.append(c)\n        elif not q or q[-1]!=-c:\n            return False\n        else: q.pop()\n    return not q\n#\n以下何者回傳True？", "options": {"A": "f([-1,1,-2,-3,2,3])", "B": "f([-1,-3,-2,2,3,-1,1])", "C": "f([-1,-2,2,-3,-1,1,3,1])", "D": "f([-1,-1,1,-2,3,-3,2,1])", "E": "以上皆非或執行錯誤 Error"}, "answer": "C", "explanation": "類似用stack 檢查括號平衡，\n負數是左括號，正數是右括號，絕對值相同是一對。", "topic": "stack，list", "difficulty": "難"}, {"id": 113, "stem": "a = [4,-5,2,0,4,2,-2,1,3,-1]\nn = len(a)\nfor i in range(1,n):\n    if a[i-1] > 0:\n        a[i] += a[i-1]\n#\nprint(a[7],max(a))\n輸出為何？", "options": {"A": "5 10", "B": "7 12", "C": "7 10", "D": "5 12", "E": "以上皆非或執行錯誤 Error"}, "answer": "C", "explanation": "若前一項大於 0 就加過來，否則不變。很容易用紙筆得到\na=[4,-1,2,2,6,8,6,7,10,9]\n其實是找 max subarray 的演算法，但做答並不一定需要知道。", "topic": "模擬，陣列，迴圈", "difficulty": "中"}, {"id": 114, "stem": "a = [(i,j) for i in range(5) \\\n    for j in range(5) if (i+j)%4==0 ]\nprint(a[: : 2])\n輸出為何？", "options": {"A": "[(0,0),(1,3),(3,1),(4,4)]", "B": "[(0,0),(0,4),(1,3),(2,2)]", "C": "[(0,0),(1,3),(2,2),(4,4)]", "D": "[(0,4),(2,2),(4,0)]", "E": "以上皆非或執行錯誤 Error"}, "answer": "A", "explanation": "a生成的結果是\n[(0, 0), (0, 4), (1, 3), (2, 2),\n(3, 1), (4, 0), (4, 4)]\na[ : : 2] 是由頭到尾每次跳過一個", "topic": "列表生成式，slicing", "difficulty": "中"}, {"id": 115, "stem": "a = [1,2,3,4,5,6]\nq = [1,0,2,-1,1,0]\nw = sum(a[i]*q[i] for i in range(6))\nprint(w)\n輸出為何？", "options": {"A": "6", "B": "8", "C": "10", "D": "11", "E": "以上皆非或執行錯誤 Error"}, "answer": "B", "explanation": "向量內積", "topic": "列表生成式", "difficulty": "易"}, {"id": 116, "stem": "a = [1]*6\ndef f(i,s):\n    if i == 6:\n        return s==3\n    w1 = f(i+1,s)\n    w2 = f(i+1,s+a[i])\n    return w1+w2\n#\nprint(f(0,0))\n輸出為何？", "options": {"A": "4", "B": "16", "C": "20", "D": "64", "E": "以上皆非或執行錯誤 Error"}, "answer": "C", "explanation": "此遞迴程式枚舉所有子集合，\n檢查其和是否為 3。所以答案是\nC(6,3)=20", "topic": "遞迴，枚舉子集合", "difficulty": "難"}, {"id": 117, "stem": "def f(n,i):\n    if i==0 or i==n:\n        return 1\n    return f(n-1,i)+f(n-1,i-1)\nprint(f(5,2))\n輸出為何？", "options": {"A": "6", "B": "10", "C": "15", "D": "20", "E": "以上皆非或執行錯誤 Error"}, "answer": "B", "explanation": "遞迴。手算可以建表，其實這是組合數的公式 C(n,r)=C(n-1,r-\n1)+C(n-1,r-1)", "topic": "遞迴", "difficulty": "中"}, {"id": 118, "stem": "n = 6\nd = [[1]*n for i in range(n)]\nfor i in range(2,n):\n    for j in range(1,i):\n        d[i][j] = d[i-1][j-1]+d[i-1][j]\n#\nprint(d[4][2]+d[5][3])\n輸出為何？", "options": {"A": "13", "B": "14", "C": "15", "D": "16", "E": "以上皆非或執行錯誤 Error"}, "answer": "D", "explanation": "二維陣列建表。\nC(4,2)+C(5,3)=16\n其實這是組合數的公式，但並不需要知道也可以做。\nC(n,r)=C(n-1,r-1)+C(n-1,r-1)", "topic": "二維陣列", "difficulty": "中"}, {"id": 119, "stem": "d = [[0]*(n+1) for i in range(n+1)]\ndef f(k,i):\n    if d[k][i] > 0: return d[k][i]\n    if i==0 or i==k:\n        d[k][i] = 1\n    else:\n        d[k][i] = f(k-1,i)+f(k-1,i-1)\n    return d[k][i]\n#\nprint(f(n,n//2))\n下列何者最準確的以 n 來表達此程式的時間複雜\n度？", "options": {"A": "O(n2)", "B": "O(n3)", "C": "O(2n)", "D": "O(n!)", "E": "以上皆非或執行錯誤 Error"}, "answer": "A", "explanation": "這是以top-down DP來計算組合數，答題不一定要知道，注意到\nd的存在，所有可能的呼叫參數都在表格內，每一個格子只會遞迴計算一次，格子數是O(n2)，所以複雜度就是平方。\n如果沒有memoization，時間複雜度是O(C(n,n/2))=O(2^n)", "topic": "程式效率，遞迴，DP", "difficulty": "難"}, {"id": 120, "stem": "d = list((x-2)**2 for x in range(6))\nd.sort()\nprint(d)\n輸出為何？", "options": {"A": "[4,1,0,1,4,9]", "B": "[-4,-2,0,2,4,6]", "C": "[0,1,1,4,4,9]", "D": "[0,1,1,4,4,9,16]", "E": "以上皆非或執行錯誤 Error"}, "answer": "C", "explanation": "用0..5生成\n[4,1,0,1,4,9]，然後小排到大", "topic": "sort，列表生成", "difficulty": "易"}, {"id": 121, "stem": "d = [3,-1,0,5,0,9,1,0,7,4]\nn = len(d)\np = sorted(d[:n//2])+sorted(d[n//2:])\ncnt = 0;\nfor i in range(n):\n    for j in range(i+1,n):\n        if p[i] > p[j]: cnt += 1\nprint(cnt)\n輸出為何？", "options": {"A": "15", "B": "10", "C": "7", "D": "5", "E": "以上皆非或執行錯誤 Error"}, "answer": "D", "explanation": "d 切成2段，個別排序，再接起來。\n左邊[-1,0,0,3,5]，\n右邊[0,1,4,7,9]\n後面在算 inversion，就是有幾對(前大後小)，已排序的內部不需要算，所以只要算p[i]在左邊，p[j]在右邊的有多少反序就好了。\n(3,0)(5,0)(3,1)(5,1)(5,4)", "topic": "sort,推理", "difficulty": "難"}, {"id": 122, "stem": "d = 'cbda'\np = sorted(d)\np的內容為何？", "options": {"A": "'abcd'", "B": "['a','b','c','d']", "C": "'cbda'", "D": "['c','b','d','a']", "E": "以上皆非或執行錯誤 Error"}, "answer": "B", "explanation": "字串放進sorted 會看成iterable，切開變成list 進行排序。", "topic": "sort,string", "difficulty": "易"}, {"id": 123, "stem": "d = ['bdc','aw','ab','b']\ns = '/'.join(sorted(d))\nprint(d[0],s)\n輸出為何？", "options": {"A": "bdc a/a/b/b/b/c/d/w", "B": "b a/a/b/b/b/c/d/w", "C": "bdc ab/aw/b/bdc", "D": "b ab/aw/b/bdc", "E": "以上皆非或執行錯誤 Error"}, "answer": "C", "explanation": "字串的list排序，依照字典序。\nsorted(d)執行後 d 不會改變。\njoin 的作用是當中介將後面的字串串起來", "topic": "sort,string", "difficulty": "中"}, {"id": 124, "stem": "s = 'apaltpptpal'\nn = len(s)\nq = sorted(s)\nwhat = cnt = 1\nfor i in range(1,n):\n    if q[i] == q[i-1]:\n        cnt += 1\n    else:\n        what = max(what,cnt)\n        cnt = 1\nprint(what)\n輸出為何？", "options": {"A": "1", "B": "2", "C": "3", "D": "4", "E": "以上皆非或執行錯誤 Error"}, "answer": "D", "explanation": "排序後相同的東西會在一起。q\n是 s 每個字母的 list，後面那段在算連續出現的字母個數，what 是最大值，所以，就是出現最多的字母，\np有4個。", "topic": "sort，程式理解。", "difficulty": "難"}, {"id": 125, "stem": "d = [3,1,2]\na = d.sort()\na[0] = 0\nprint(a,d)\n輸出為何？", "options": {"A": "[0,2,3] [1,2,3]", "B": "[0,1,2] [1,2,3]", "C": "[0,2,3] [3,1,2]", "D": "[0,2,3] [0,2,3]", "E": "以上皆非或執行錯誤 Error"}, "answer": "E", "explanation": "一個常犯的錯誤，d.sort()沒有回傳值，所以 a是None，a[0]會引發錯誤。", "topic": "sort", "difficulty": "中"}]
+</script>
+
+<script>
+const ALL_QUESTIONS = JSON.parse(document.getElementById('quiz-data').textContent);
+const TOTAL_Q = ALL_QUESTIONS.length;
+const STORAGE_KEY = 'pyquiz_progress_v1';
+const DEFAULT_CLASSES = ['N班', 'J班', 'AA班'];
+const ADMIN_EMAILS = ['greenmail1011@gmail.com'];
+
+// ---------- Firebase (student login + cloud progress) ----------
+const firebaseConfig = {
+  apiKey: "AIzaSyBJH1GXThSQrdzHenjoA5_E-hRHaPtVFu0",
+  authDomain: "python-quiz-125.firebaseapp.com",
+  projectId: "python-quiz-125",
+  storageBucket: "python-quiz-125.firebasestorage.app",
+  messagingSenderId: "686105323347",
+  appId: "1:686105323347:web:5218a5ebf44b38739963a6"
+};
+
+let fbAuth = null;
+let fbDb = null;
+let currentUser = null;
+let studentCache = { answers: {} };
+let firebaseReady = false;
+
+try {
+  if (typeof firebase !== 'undefined') {
+    firebase.initializeApp(firebaseConfig);
+    fbAuth = firebase.auth();
+    fbDb = firebase.firestore();
+    firebaseReady = true;
+  }
+} catch (e) {
+  console.warn('Firebase 初始化失敗', e);
+}
+
+function translateAuthError(err) {
+  const code = err && err.code ? err.code : '';
+  const map = {
+    'auth/invalid-email': 'Email 格式不正確',
+    'auth/missing-password': '請輸入密碼',
+    'auth/weak-password': '密碼至少需要 6 個字元',
+    'auth/email-already-in-use': '這個 Email 已經註冊過了，請直接登入',
+    'auth/user-not-found': '找不到這個帳號，請確認 Email 或先註冊',
+    'auth/wrong-password': '密碼錯誤',
+    'auth/invalid-credential': 'Email 或密碼不正確',
+    'auth/popup-closed-by-user': '登入視窗已關閉',
+    'auth/network-request-failed': '網路連線失敗，請稍後再試'
+  };
+  return map[code] || (err && err.message) || '發生錯誤，請再試一次';
+}
+
+function openAuthModal() {
+  document.getElementById('auth-error').textContent = '';
+  document.getElementById('auth-email').value = '';
+  document.getElementById('auth-password').value = '';
+  document.getElementById('auth-modal').style.display = 'flex';
+}
+function closeAuthModal() {
+  document.getElementById('auth-modal').style.display = 'none';
+}
+
+function isAdmin() {
+  return !!(currentUser && currentUser.email && ADMIN_EMAILS.includes(currentUser.email));
+}
+
+// 強制登入：未登入時只顯示登入畫面，隱藏題庫本體
+function updateAppGate() {
+  const loggedIn = !!currentUser;
+  document.getElementById('auth-modal').style.display = loggedIn ? 'none' : 'flex';
+  document.getElementById('app-layout').style.display = loggedIn ? 'grid' : 'none';
+  document.getElementById('mode-switch-wrap').style.display = loggedIn ? 'flex' : 'none';
+  document.getElementById('class-switch-wrap').style.display = loggedIn ? 'flex' : 'none';
+}
+
+function updateAuthUI() {
+  const area = document.getElementById('auth-area');
+  area.innerHTML = '';
+  if (currentUser) {
+    const chip = document.createElement('span');
+    chip.className = 'user-chip';
+    chip.textContent = currentUser.displayName || currentUser.email || '已登入';
+    chip.title = currentUser.email || '';
+    area.appendChild(chip);
+    if (isAdmin()) {
+      const adminBtn = document.createElement('button');
+      adminBtn.className = 'admin-btn';
+      adminBtn.textContent = '管理後台';
+      adminBtn.addEventListener('click', openAdminModal);
+      area.appendChild(adminBtn);
+    }
+    const btn = document.createElement('button');
+    btn.textContent = '登出';
+    btn.addEventListener('click', () => fbAuth && fbAuth.signOut());
+    area.appendChild(btn);
+  }
+  updateAppGate();
+}
+
+async function loadStudentDoc(uid) {
+  if (!fbDb) return;
+  try {
+    const ref = fbDb.collection('students').doc(uid);
+    const snap = await ref.get();
+    if (snap.exists) {
+      const data = snap.data() || {};
+      studentCache.answers = data.answers || {};
+    } else {
+      studentCache.answers = {};
+      await ref.set({
+        displayName: (currentUser && currentUser.displayName) || '',
+        email: (currentUser && currentUser.email) || '',
+        answers: {},
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+  } catch (e) {
+    console.warn('讀取雲端練習紀錄失敗', e);
+    studentCache.answers = {};
+  }
+}
+
+async function saveAnswerToCloud(qid, letter, correct) {
+  studentCache.answers[qid] = { answered: true, letter, correct };
+  if (!fbDb || !currentUser) return;
+  try {
+    const field = 'answers.' + qid;
+    await fbDb.collection('students').doc(currentUser.uid).set({
+      [field]: { answered: true, letter, correct },
+      displayName: currentUser.displayName || '',
+      email: currentUser.email || '',
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  } catch (e) {
+    console.warn('儲存練習紀錄到雲端失敗', e);
+  }
+}
+
+async function resetStudentProgress() {
+  studentCache.answers = {};
+  if (!fbDb || !currentUser) return;
+  try {
+    await fbDb.collection('students').doc(currentUser.uid).set({ answers: {} }, { merge: true });
+  } catch (e) {
+    console.warn('清除雲端練習紀錄失敗', e);
+  }
+}
+
+// ---------- Admin dashboard ----------
+function openAdminModal() {
+  document.getElementById('admin-modal').style.display = 'flex';
+  loadAdminStudents();
+}
+function closeAdminModal() {
+  document.getElementById('admin-modal').style.display = 'none';
+}
+
+async function loadAdminStudents() {
+  const table = document.getElementById('admin-table');
+  const empty = document.getElementById('admin-empty');
+  const tbody = document.getElementById('admin-table-body');
+  table.style.display = 'none';
+  empty.style.display = 'block';
+  empty.textContent = '載入中…';
+  if (!fbDb || !isAdmin()) return;
+  try {
+    const snap = await fbDb.collection('students').get();
+    tbody.innerHTML = '';
+    if (snap.empty) {
+      empty.textContent = '目前還沒有學生登入紀錄';
+      return;
+    }
+    snap.forEach(doc => {
+      const data = doc.data() || {};
+      const answers = data.answers || {};
+      const answeredIds = Object.keys(answers).filter(k => answers[k] && answers[k].answered);
+      const correctCount = answeredIds.filter(k => answers[k].correct).length;
+      const total = answeredIds.length;
+      const accuracy = total > 0 ? Math.round((correctCount / total) * 100) + '%' : '—';
+
+      const tr = document.createElement('tr');
+
+      const tdName = document.createElement('td');
+      tdName.className = 'email-col';
+      tdName.textContent = data.displayName ? (data.displayName + '（' + data.email + '）') : (data.email || doc.id);
+      tr.appendChild(tdName);
+
+      const tdTotal = document.createElement('td');
+      tdTotal.textContent = total;
+      tr.appendChild(tdTotal);
+
+      const tdCorrect = document.createElement('td');
+      tdCorrect.textContent = correctCount;
+      tr.appendChild(tdCorrect);
+
+      const tdAcc = document.createElement('td');
+      tdAcc.textContent = accuracy;
+      tr.appendChild(tdAcc);
+
+      const tdAction = document.createElement('td');
+      const resetBtn = document.createElement('button');
+      resetBtn.textContent = '重設練習紀錄';
+      resetBtn.addEventListener('click', () => adminResetStudent(doc.id, data.email || doc.id));
+      tdAction.appendChild(resetBtn);
+      tr.appendChild(tdAction);
+
+      tbody.appendChild(tr);
+    });
+    table.style.display = 'table';
+    empty.style.display = 'none';
+  } catch (e) {
+    console.warn('讀取學生名單失敗', e);
+    empty.textContent = '讀取失敗，請確認 Firestore 權限規則已更新為管理者可讀取所有學生資料';
+  }
+}
+
+async function adminResetStudent(uid, label) {
+  if (!confirm('確定要清除「' + label + '」的練習紀錄嗎？此動作無法復原。')) return;
+  try {
+    await fbDb.collection('students').doc(uid).set({ answers: {} }, { merge: true });
+    loadAdminStudents();
+  } catch (e) {
+    console.warn('重設學生紀錄失敗', e);
+    alert('重設失敗，請確認 Firestore 權限規則已更新為管理者可寫入所有學生資料');
+  }
+}
+
+document.getElementById('admin-modal-close').addEventListener('click', closeAdminModal);
+document.getElementById('admin-modal').addEventListener('click', (e) => {
+  if (e.target.id === 'admin-modal') closeAdminModal();
+});
+
+function startAuthListener() {
+  if (!firebaseReady) return;
+  fbAuth.onAuthStateChanged(async (user) => {
+    currentUser = user;
+    updateAuthUI();
+    if (user) {
+      await loadStudentDoc(user.uid);
+    } else {
+      studentCache = { answers: {} };
+    }
+    renderQuestion();
+  });
+}
+
+function loadStore() {
+  let store = null;
+  try {
+    store = JSON.parse(localStorage.getItem(STORAGE_KEY));
+  } catch (e) { store = null; }
+  if (!store || !Array.isArray(store.classes) || store.classes.length === 0) {
+    store = { classes: DEFAULT_CLASSES.slice(), currentClass: DEFAULT_CLASSES[0], data: {} };
+  }
+  if (!store.currentClass || !store.classes.includes(store.currentClass)) {
+    store.currentClass = store.classes[0];
+  }
+  store.data = store.data || {};
+  return store;
+}
+
+function saveStore() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+}
+
+function ensureClassData(className) {
+  if (!store.data[className]) {
+    store.data[className] = {
+      lecture: { lastIndex: 0, covered: [] },
+      practice: { lastIndex: 0, answers: {} }
+    };
+  }
+  if (!store.data[className].lecture) store.data[className].lecture = { lastIndex: 0, covered: [] };
+  if (!store.data[className].practice) store.data[className].practice = { lastIndex: 0, answers: {} };
+  return store.data[className];
+}
+
+let store = loadStore();
+ensureClassData(store.currentClass);
+
+let mode = 'lecture'; // 'lecture' | 'practice'
+let filteredIds = ALL_QUESTIONS.map(q => q.id);
+let currentIndex = store.data[store.currentClass].lecture.lastIndex || 0;
+let revealed = false;
+let selectedLetter = null;
+
+function qById(id) { return ALL_QUESTIONS.find(q => q.id === id); }
+function classData() { return ensureClassData(store.currentClass); }
+function practiceAnswers() { return currentUser ? studentCache.answers : classData().practice.answers; }
+function coveredSet() { return new Set(classData().lecture.covered); }
+
+function renderClassSelect() {
+  const sel = document.getElementById('class-select');
+  sel.innerHTML = '';
+  store.classes.forEach(cls => {
+    const opt = document.createElement('option');
+    opt.value = cls;
+    opt.textContent = cls;
+    if (cls === store.currentClass) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function applyFilter() {
+  const diff = document.getElementById('filter-diff').value;
+  filteredIds = ALL_QUESTIONS.filter(q => !diff || q.difficulty === diff).map(q => q.id);
+  if (filteredIds.length === 0) filteredIds = ALL_QUESTIONS.map(q => q.id);
+  currentIndex = 0;
+  renderGrid();
+  renderQuestion();
+}
+
+function renderGrid() {
+  const grid = document.getElementById('qgrid');
+  grid.innerHTML = '';
+  const covered = coveredSet();
+  const answers = practiceAnswers();
+  filteredIds.forEach((id, idx) => {
+    const btn = document.createElement('button');
+    btn.textContent = id;
+    const q = qById(id);
+    btn.classList.add('diff-' + q.difficulty);
+    if (idx === currentIndex) btn.classList.add('current');
+    if (mode === 'practice' && answers[id] && answers[id].answered) {
+      btn.classList.add(answers[id].correct ? 'done-correct' : 'done-wrong');
+    }
+    if (mode === 'lecture' && covered.has(id)) {
+      btn.classList.add('lecture-done');
+    }
+    btn.addEventListener('click', () => {
+      currentIndex = idx;
+      persistIndex();
+      renderQuestion();
+    });
+    grid.appendChild(btn);
+  });
+}
+
+function persistIndex() {
+  classData()[mode].lastIndex = currentIndex;
+  saveStore();
+}
+
+function updateScoreBox() {
+  const box = document.getElementById('score-box');
+  const lectureBox = document.getElementById('lecture-box');
+  const studentBox = document.getElementById('student-score-box');
+  if (mode === 'practice') {
+    lectureBox.style.display = 'none';
+    const answers = practiceAnswers();
+    const answeredIds = Object.keys(answers).filter(k => answers[k].answered);
+    const correctCount = answeredIds.filter(k => answers[k].correct).length;
+    if (currentUser) {
+      box.style.display = 'none';
+      studentBox.style.display = 'block';
+      document.getElementById('student-score-correct').textContent = correctCount;
+      document.getElementById('student-score-total').textContent = answeredIds.length;
+    } else {
+      studentBox.style.display = 'none';
+      box.style.display = 'block';
+      document.getElementById('score-correct').textContent = correctCount;
+      document.getElementById('score-total').textContent = answeredIds.length;
+    }
+  } else {
+    box.style.display = 'none';
+    studentBox.style.display = 'none';
+    lectureBox.style.display = 'block';
+    document.getElementById('lecture-covered').textContent = coveredSet().size;
+    document.getElementById('lecture-total').textContent = TOTAL_Q;
+  }
+  const hint = document.getElementById('progress-hint');
+  if (mode === 'practice' && currentUser) {
+    hint.textContent = (currentUser.displayName || currentUser.email) + '：已練 ' +
+      Object.keys(practiceAnswers()).length + '/' + TOTAL_Q + ' 題';
+  } else {
+    hint.textContent = store.currentClass + '：' +
+      (mode === 'lecture'
+        ? '已講 ' + coveredSet().size + '/' + TOTAL_Q + ' 題'
+        : '已練 ' + Object.keys(practiceAnswers()).length + '/' + TOTAL_Q + ' 題');
+  }
+}
+
+function renderQuestion() {
+  const id = filteredIds[currentIndex];
+  const q = qById(id);
+  const answers = practiceAnswers();
+  revealed = mode === 'practice' ? !!(answers[id] && answers[id].answered) : coveredSet().has(id);
+  selectedLetter = mode === 'practice' && answers[id] ? answers[id].letter : null;
+
+  document.getElementById('qnum-label').textContent = 'Q.' + String(id).padStart(3, '0');
+  const tagTopic = document.getElementById('tag-topic');
+  tagTopic.textContent = q.topic || '（無標記主題）';
+  const tagDiff = document.getElementById('tag-diff');
+  tagDiff.textContent = '難度：' + q.difficulty;
+  tagDiff.className = 'tag diff-' + q.difficulty;
+
+  document.getElementById('stem-code').textContent = q.stem;
+
+  const optsWrap = document.getElementById('options');
+  optsWrap.innerHTML = '';
+  ['A','B','C','D','E'].forEach(letter => {
+    if (!(letter in q.options)) return;
+    const div = document.createElement('div');
+    div.className = 'option';
+    div.dataset.letter = letter;
+
+    const letterSpan = document.createElement('span');
+    letterSpan.className = 'letter';
+    letterSpan.textContent = '(' + letter + ')';
+
+    const textSpan = document.createElement('span');
+    textSpan.className = 'option-text';
+    textSpan.textContent = q.options[letter];
+
+    div.appendChild(letterSpan);
+    div.appendChild(textSpan);
+
+    if (mode === 'practice') {
+      div.addEventListener('click', () => onPracticeAnswer(id, letter));
+    }
+    optsWrap.appendChild(div);
+  });
+
+  document.getElementById('lecture-hint').style.display = mode === 'lecture' ? 'block' : 'none';
+  document.getElementById('reveal-btn').style.display = mode === 'lecture' ? 'inline-block' : 'none';
+
+  const answerPanel = document.getElementById('answer-panel');
+  if (mode === 'lecture') {
+    if (revealed) {
+      showAnswerPanel(id, q.answer);
+      document.getElementById('reveal-btn').textContent = '隱藏解答';
+    } else {
+      answerPanel.style.display = 'none';
+      document.getElementById('reveal-btn').textContent = '顯示解答';
+    }
+  } else if (mode === 'practice' && revealed) {
+    showAnswerPanel(id, selectedLetter);
+  } else {
+    answerPanel.style.display = 'none';
+  }
+
+  applyOptionStyling(id);
+
+  document.getElementById('progress-label').textContent =
+    (currentIndex + 1) + ' / ' + filteredIds.length + ' 題';
+  document.getElementById('btn-prev').disabled = currentIndex === 0;
+  document.getElementById('btn-next').disabled = currentIndex === filteredIds.length - 1;
+
+  renderGrid();
+  updateScoreBox();
+}
+
+function applyOptionStyling(id) {
+  const q = qById(id);
+  const opts = document.querySelectorAll('#options .option');
+  opts.forEach(el => {
+    el.classList.remove('correct-pick', 'wrong-pick', 'reveal-correct', 'disabled');
+    const letter = el.dataset.letter;
+    if (mode === 'lecture') {
+      if (revealed && letter === q.answer) el.classList.add('reveal-correct');
+    } else {
+      const st = practiceAnswers()[id];
+      if (st && st.answered) {
+        el.classList.add('disabled');
+        if (letter === q.answer) el.classList.add('reveal-correct');
+        if (letter === st.letter && letter !== q.answer) el.classList.add('wrong-pick');
+      }
+    }
+  });
+}
+
+function showAnswerPanel(id, letter) {
+  const q = qById(id);
+  const panel = document.getElementById('answer-panel');
+  panel.style.display = 'block';
+  const resultLine = document.getElementById('result-line');
+  const isCorrect = letter === q.answer;
+  if (mode === 'practice') {
+    panel.className = 'answer-panel ' + (isCorrect ? 'is-correct' : 'is-wrong');
+    resultLine.className = 'result-line ' + (isCorrect ? 'ok' : 'no');
+    resultLine.textContent = isCorrect
+      ? '✓ 答對了！正確答案：(' + q.answer + ')'
+      : '✗ 答錯了。你選的是 (' + letter + ')，正確答案：(' + q.answer + ')';
+  } else {
+    panel.className = 'answer-panel';
+    resultLine.className = 'result-line';
+    resultLine.textContent = '正確答案：(' + q.answer + ')';
+  }
+  document.getElementById('explain-text').textContent = q.explanation;
+  document.getElementById('meta-line').textContent = '出題用意：' + q.topic + '　|　難度：' + q.difficulty;
+}
+
+function onPracticeAnswer(id, letter) {
+  const answers = practiceAnswers();
+  if (answers[id] && answers[id].answered) return; // already answered
+  const q = qById(id);
+  const isCorrect = letter === q.answer;
+  answers[id] = { answered: true, letter, correct: isCorrect };
+  if (currentUser) {
+    saveAnswerToCloud(id, letter, isCorrect);
+  } else {
+    saveStore();
+  }
+  revealed = true;
+  selectedLetter = letter;
+  applyOptionStyling(id);
+  showAnswerPanel(id, letter);
+  renderGrid();
+  updateScoreBox();
+}
+
+document.getElementById('reveal-btn').addEventListener('click', () => {
+  const id = filteredIds[currentIndex];
+  revealed = !revealed;
+  if (revealed) {
+    const covered = new Set(classData().lecture.covered);
+    covered.add(id);
+    classData().lecture.covered = Array.from(covered);
+    saveStore();
+    showAnswerPanel(id, qById(id).answer);
+    document.getElementById('reveal-btn').textContent = '隱藏解答';
+  } else {
+    document.getElementById('answer-panel').style.display = 'none';
+    document.getElementById('reveal-btn').textContent = '顯示解答';
+  }
+  applyOptionStyling(id);
+  renderGrid();
+  updateScoreBox();
+});
+
+document.getElementById('btn-prev').addEventListener('click', () => {
+  if (currentIndex > 0) { currentIndex--; persistIndex(); renderQuestion(); }
+});
+document.getElementById('btn-next').addEventListener('click', () => {
+  if (currentIndex < filteredIds.length - 1) { currentIndex++; persistIndex(); renderQuestion(); }
+});
+
+function switchMode(newMode) {
+  mode = newMode;
+  document.getElementById('btn-lecture').classList.toggle('active', mode === 'lecture');
+  document.getElementById('btn-practice').classList.toggle('active', mode === 'practice');
+  const savedIdx = classData()[mode].lastIndex || 0;
+  currentIndex = Math.min(savedIdx, filteredIds.length - 1);
+  renderQuestion();
+}
+
+document.getElementById('btn-lecture').addEventListener('click', () => switchMode('lecture'));
+document.getElementById('btn-practice').addEventListener('click', () => switchMode('practice'));
+
+document.getElementById('filter-diff').addEventListener('change', applyFilter);
+document.getElementById('btn-reset-score').addEventListener('click', () => {
+  if (!confirm('確定要清除「' + store.currentClass + '」的練習紀錄嗎？')) return;
+  classData().practice = { lastIndex: 0, answers: {} };
+  currentIndex = 0;
+  saveStore();
+  renderQuestion();
+});
+document.getElementById('btn-reset-lecture').addEventListener('click', () => {
+  if (!confirm('確定要清除「' + store.currentClass + '」的講解紀錄嗎？')) return;
+  classData().lecture = { lastIndex: 0, covered: [] };
+  currentIndex = 0;
+  saveStore();
+  renderQuestion();
+});
+
+function switchClass(newClass) {
+  store.currentClass = newClass;
+  ensureClassData(newClass);
+  saveStore();
+  const savedIdx = classData()[mode].lastIndex || 0;
+  currentIndex = Math.min(savedIdx, filteredIds.length - 1);
+  renderQuestion();
+}
+
+document.getElementById('class-select').addEventListener('change', (e) => {
+  switchClass(e.target.value);
+});
+
+document.getElementById('btn-add-class').addEventListener('click', () => {
+  const name = window.prompt('請輸入新班級名稱（例如：K班）：');
+  if (!name) return;
+  const trimmed = name.trim();
+  if (!trimmed) return;
+  if (!store.classes.includes(trimmed)) {
+    store.classes.push(trimmed);
+  }
+  renderClassSelect();
+  switchClass(trimmed);
+  document.getElementById('class-select').value = trimmed;
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight') document.getElementById('btn-next').click();
+  if (e.key === 'ArrowLeft') document.getElementById('btn-prev').click();
+  if (e.key === ' ' && mode === 'lecture') { e.preventDefault(); document.getElementById('reveal-btn').click(); }
+});
+
+// ---------- Auth modal wiring ----------
+// 強制登入：登入視窗不提供訪客略過或點擊外部關閉的功能
+
+document.getElementById('google-signin-btn').addEventListener('click', async () => {
+  if (!firebaseReady) {
+    document.getElementById('auth-error').textContent = '登入功能尚未就緒，請確認網路連線後重新整理頁面';
+    return;
+  }
+  document.getElementById('auth-error').textContent = '';
+  try {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    await fbAuth.signInWithPopup(provider);
+    closeAuthModal();
+  } catch (e) {
+    document.getElementById('auth-error').textContent = translateAuthError(e);
+  }
+});
+
+document.getElementById('email-signin-btn').addEventListener('click', async () => {
+  if (!firebaseReady) return;
+  const email = document.getElementById('auth-email').value.trim();
+  const pw = document.getElementById('auth-password').value;
+  document.getElementById('auth-error').textContent = '';
+  try {
+    await fbAuth.signInWithEmailAndPassword(email, pw);
+    closeAuthModal();
+  } catch (e) {
+    document.getElementById('auth-error').textContent = translateAuthError(e);
+  }
+});
+
+document.getElementById('email-register-btn').addEventListener('click', async () => {
+  if (!firebaseReady) return;
+  const email = document.getElementById('auth-email').value.trim();
+  const pw = document.getElementById('auth-password').value;
+  document.getElementById('auth-error').textContent = '';
+  try {
+    await fbAuth.createUserWithEmailAndPassword(email, pw);
+    closeAuthModal();
+  } catch (e) {
+    document.getElementById('auth-error').textContent = translateAuthError(e);
+  }
+});
+
+document.getElementById('btn-reset-student-score').addEventListener('click', async () => {
+  if (!confirm('確定要清除你自己的練習紀錄嗎？')) return;
+  await resetStudentProgress();
+  renderQuestion();
+});
+
+updateAuthUI();
+renderClassSelect();
+renderGrid();
+renderQuestion();
+startAuthListener();
+</script>
+
+</body>
+</html>
