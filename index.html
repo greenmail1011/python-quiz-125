@@ -324,6 +324,16 @@
   .qgrid button.diff-易 { border-left: 3px solid #9fd8b0; }
   .qgrid button.diff-中 { border-left: 3px solid #f2c94c; }
   .qgrid button.diff-難 { border-left: 3px solid #ec8f8f; }
+  .qgrid-group-header {
+    grid-column: 1 / -1;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-top: 8px;
+    padding-bottom: 2px;
+    border-bottom: 1px solid var(--border);
+  }
+  .qgrid-group-header:first-child { margin-top: 0; }
 
   .score-box {
     margin-top: 14px;
@@ -3970,7 +3980,13 @@ const DEFAULT_CLASSES = ['N班', 'J班', 'AA班'];
 const ADMIN_EMAILS = ['greenmail1011@gmail.com'];
 
 function formatQNum(bank, id) {
-  if (bank === 'apcs') return 'Q.' + id;
+  if (bank === 'apcs') {
+    const q = qById(id);
+    const parts = String(id).split('_');
+    const n = parseInt(parts[parts.length - 1], 10);
+    const num = isNaN(n) ? id : n;
+    return (q && q.examLabel ? q.examLabel + ' · ' : '') + 'Q.' + num;
+  }
   return 'Q.' + String(id).padStart(3, '0');
 }
 
@@ -4297,15 +4313,32 @@ function applyFilter() {
   renderQuestion();
 }
 
+function gridButtonLabel(q) {
+  if (currentBank === 'apcs' && q.examLabel) {
+    const parts = String(q.id).split('_');
+    const n = parseInt(parts[parts.length - 1], 10);
+    return isNaN(n) ? q.id : String(n);
+  }
+  return q.id;
+}
+
 function renderGrid() {
   const grid = document.getElementById('qgrid');
   grid.innerHTML = '';
   const covered = coveredSet();
   const answers = practiceAnswers();
+  let lastGroupLabel = null;
   filteredIds.forEach((id, idx) => {
-    const btn = document.createElement('button');
-    btn.textContent = id;
     const q = qById(id);
+    if (currentBank === 'apcs' && q.examLabel && q.examLabel !== lastGroupLabel) {
+      lastGroupLabel = q.examLabel;
+      const header = document.createElement('div');
+      header.className = 'qgrid-group-header';
+      header.textContent = q.examLabel;
+      grid.appendChild(header);
+    }
+    const btn = document.createElement('button');
+    btn.textContent = gridButtonLabel(q);
     btn.classList.add('diff-' + q.difficulty);
     if (idx === currentIndex) btn.classList.add('current');
     if (mode === 'practice' && answers[id] && answers[id].answered) {
