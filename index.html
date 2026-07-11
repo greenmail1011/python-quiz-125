@@ -225,28 +225,32 @@
     background: #04070a;
     border: 1px solid rgba(57,255,136,.35);
     border-radius: 6px;
-    padding: 7px 0;
     margin-bottom: 14px;
     overflow: hidden;
+    height: 32px;
     box-shadow: inset 0 0 14px rgba(57,255,136,.14), 0 0 10px rgba(57,255,136,.12);
   }
   .led-marquee-track {
     display: flex;
-    width: max-content;
-    animation: led-scroll 16s linear infinite;
+    flex-direction: column;
+    animation: led-flip-up 6s ease-in-out infinite;
   }
   .led-marquee-track span {
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
     white-space: nowrap;
     font-family: "SF Mono", "Menlo", "Consolas", monospace;
-    font-size: 11.5px;
+    font-size: 12px;
     letter-spacing: 1.5px;
     color: #39ff88;
     text-shadow: 0 0 4px rgba(57,255,136,.9), 0 0 10px rgba(57,255,136,.5);
   }
-  @keyframes led-scroll {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
+  @keyframes led-flip-up {
+    0%, 40%  { transform: translateY(0); }
+    50%, 90% { transform: translateY(-33.3333%); }
+    100%     { transform: translateY(-66.6666%); }
   }
   .modal-eyebrow {
     display: flex;
@@ -756,8 +760,9 @@
     <div class="modal-brand">未來斑馬程式設計學苑<br>APCS 培訓系統</div>
     <div class="led-marquee">
       <div class="led-marquee-track">
-        <span>下次檢測日期：2026/10/04　　•　　報名日期：2026/08/03　　•　　</span>
-        <span>下次檢測日期：2026/10/04　　•　　報名日期：2026/08/03　　•　　</span>
+        <span>下次檢測日期：2026/10/04</span>
+        <span>報名日期：2026/08/03</span>
+        <span>下次檢測日期：2026/10/04</span>
       </div>
     </div>
     <div class="modal-eyebrow">Secure Access</div>
