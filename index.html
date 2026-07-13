@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
@@ -429,8 +429,6 @@
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 16px;
-    position: sticky;
-    top: 82px;
   }
   .sidebar h3 {
     font-size: 13px;
@@ -564,6 +562,18 @@
     white-space: pre-wrap;
     word-break: break-word;
     margin-bottom: 20px;
+  }
+  .qbody {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+  .qbody .options,
+  .qbody .stem-code {
+    flex: 1 1 0;
+    margin-bottom: 0;
+    min-width: 0;
   }
   .stem-code .blank {
     display: inline-block;
@@ -748,8 +758,9 @@
 
   @media (max-width: 860px) {
     .layout { grid-template-columns: 1fr; }
-    .sidebar { position: static; order: 2; }
+    .sidebar { order: 2; }
     .main-panel { order: 1; }
+    .qbody { flex-direction: column; }
   }
 
   @media (max-width: 640px) {
@@ -902,9 +913,11 @@
     <div class="lecture-hint" id="lecture-hint">點擊「顯示解答」查看答案與說明（適合課堂逐題講解）</div>
 
     <div class="stem-text" id="stem-text"></div>
-    <div class="stem-code" id="stem-code" style="display:none;"></div>
 
-    <div class="options" id="options"></div>
+    <div class="qbody">
+      <div class="options" id="options"></div>
+      <div class="stem-code" id="stem-code" style="display:none;"></div>
+    </div>
 
     <button class="reveal-btn" id="reveal-btn">顯示解答</button>
 
