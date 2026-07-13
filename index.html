@@ -112,6 +112,7 @@
     color: var(--muted);
   }
   .class-switch button:hover { border-color: var(--accent); color: var(--accent-dark); }
+  #btn-delete-class:hover { border-color: var(--red); color: var(--red); }
   .progress-hint {
     font-size: 12.5px;
     color: var(--muted);
@@ -152,13 +153,26 @@
   }
   .auth-area button:hover { border-color: var(--accent); color: var(--accent-dark); }
   .auth-area .user-chip {
+    display: flex;
+    align-items: center;
+    gap: 7px;
     font-size: 13px;
     color: var(--ink);
     background: #eef0f4;
-    padding: 6px 12px;
+    padding: 5px 12px 5px 5px;
     border-radius: 999px;
     font-weight: 600;
-    max-width: 160px;
+    max-width: 200px;
+  }
+  .auth-area .user-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: #d9deea;
+  }
+  .auth-area .user-chip-name {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -492,10 +506,10 @@
     padding: 0;
   }
   .qgrid button:hover { border-color: var(--accent); }
-  .qgrid button.done-correct { background: var(--green-bg); border-color: var(--green); color: var(--green); }
-  .qgrid button.done-wrong { background: var(--red-bg); border-color: var(--red); color: var(--red); }
-  .qgrid button.lecture-done { background: #eaf0ff; border-color: var(--accent); color: var(--accent-dark); }
-  .qgrid button.done-reviewed { background: #eaf0ff; border-color: var(--accent); color: var(--accent-dark); }
+  .qgrid button.done-correct { background: var(--green); border-color: var(--green); color: #fff; font-weight: 800; }
+  .qgrid button.done-wrong { background: var(--red); border-color: var(--red); color: #fff; font-weight: 800; }
+  .qgrid button.lecture-done { background: var(--accent-dark); border-color: var(--accent-dark); color: #fff; font-weight: 800; }
+  .qgrid button.done-reviewed { background: var(--amber); border-color: var(--amber); color: #fff; font-weight: 800; }
   .qgrid button.current { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; box-shadow: 0 0 0 2px rgba(79,109,245,.35); }
   .qgrid button.diff-易 { border-left: 3px solid #9fd8b0; }
   .qgrid button.diff-中 { border-left: 3px solid #f2c94c; }
@@ -575,18 +589,19 @@
     background: var(--code-bg);
     color: var(--code-ink);
     border-radius: 10px;
-    padding: 18px 20px;
+    padding: 22px 24px;
     font-family: "SF Mono", "Menlo", "Consolas", monospace;
-    font-size: 14.5px;
-    line-height: 1.65;
+    font-size: 17px;
+    line-height: 1.7;
     white-space: pre-wrap;
     word-break: break-word;
     margin-bottom: 20px;
+    box-sizing: border-box;
   }
   .qbody {
     display: flex;
     gap: 20px;
-    align-items: flex-start;
+    align-items: stretch;
     margin-bottom: 20px;
   }
   .qbody .options,
@@ -594,6 +609,10 @@
     flex: 1 1 0;
     margin-bottom: 0;
     min-width: 0;
+  }
+  .qbody .stem-code {
+    display: flex;
+    align-items: center;
   }
   .stem-code .blank {
     display: inline-block;
@@ -798,7 +817,8 @@
     .progress-hint { font-size: 11px; padding: 4px 8px; }
     .auth-area { gap: 5px; }
     .auth-area button { padding: 5px 9px; font-size: 12px; }
-    .auth-area .user-chip { padding: 5px 9px; font-size: 12px; max-width: 90px; }
+    .auth-area .user-chip { padding: 4px 9px 4px 4px; font-size: 12px; max-width: 100px; }
+    .auth-area .user-avatar { width: 18px; height: 18px; }
     .layout { margin: 10px auto; padding: 0 10px; gap: 12px; }
     .main-panel { padding: 14px 14px; min-height: 0; }
     .sidebar { padding: 12px; }
@@ -820,6 +840,7 @@
     <label>班級</label>
     <select id="class-select"></select>
     <button id="btn-add-class" title="新增班級">＋ 新增班級</button>
+    <button id="btn-delete-class" title="刪除目前班級">－ 刪除班級</button>
   </div>
   <span class="progress-hint" id="progress-hint"></span>
   <button id="btn-toggle-sidebar" class="sidebar-toggle-btn" style="display:none;">☰ 篩選/跳題</button>
@@ -1090,8 +1111,20 @@ function updateAuthUI() {
   if (currentUser) {
     const chip = document.createElement('span');
     chip.className = 'user-chip';
-    chip.textContent = currentUser.displayName || currentUser.email || '已登入';
     chip.title = currentUser.email || '';
+    if (currentUser.photoURL) {
+      const avatar = document.createElement('img');
+      avatar.className = 'user-avatar';
+      avatar.src = currentUser.photoURL;
+      avatar.alt = '';
+      avatar.referrerPolicy = 'no-referrer';
+      avatar.addEventListener('error', () => avatar.remove());
+      chip.appendChild(avatar);
+    }
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'user-chip-name';
+    nameSpan.textContent = currentUser.displayName || currentUser.email || '已登入';
+    chip.appendChild(nameSpan);
     area.appendChild(chip);
     if (isAdmin()) {
       const adminBtn = document.createElement('button');
@@ -1833,6 +1866,23 @@ document.getElementById('btn-add-class').addEventListener('click', () => {
   renderClassSelect();
   switchClass(trimmed);
   document.getElementById('class-select').value = trimmed;
+});
+
+document.getElementById('btn-delete-class').addEventListener('click', () => {
+  const target = store.currentClass;
+  if (store.classes.length <= 1) {
+    alert('至少要保留一個班級，無法刪除。');
+    return;
+  }
+  if (!confirm('確定要刪除「' + target + '」嗎？此班級的講解與練習紀錄將會一併清除，且無法復原。')) return;
+  store.classes = store.classes.filter(c => c !== target);
+  delete store.data.main[target];
+  delete store.data.apcs[target];
+  store.currentClass = store.classes[0];
+  saveStore();
+  renderClassSelect();
+  switchClass(store.currentClass);
+  document.getElementById('class-select').value = store.currentClass;
 });
 
 document.addEventListener('keydown', (e) => {
