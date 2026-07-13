@@ -121,6 +121,20 @@
     white-space: nowrap;
   }
 
+  .sidebar-toggle-btn {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--accent-dark);
+    background: #eaf0ff;
+    border: 1px solid #cddcff;
+    padding: 6px 12px;
+    border-radius: 999px;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .sidebar-toggle-btn:hover { border-color: var(--accent); }
+  .sidebar-toggle-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
   .auth-area {
     display: flex;
     align-items: center;
@@ -423,6 +437,12 @@
     margin: 20px auto;
     padding: 0 20px;
     align-items: start;
+  }
+  .layout.sidebar-hidden {
+    grid-template-columns: 1fr;
+  }
+  .layout.sidebar-hidden .sidebar {
+    display: none;
   }
   .sidebar {
     background: var(--panel);
@@ -802,6 +822,7 @@
     <button id="btn-add-class" title="新增班級">＋ 新增班級</button>
   </div>
   <span class="progress-hint" id="progress-hint"></span>
+  <button id="btn-toggle-sidebar" class="sidebar-toggle-btn" style="display:none;">☰ 篩選/跳題</button>
   <div class="auth-area" id="auth-area"></div>
   <div class="mode-switch" id="mode-switch-wrap" style="display:none;">
     <button id="btn-lecture" class="active">講解模式</button>
@@ -1060,6 +1081,7 @@ function updateAppGate() {
   document.getElementById('mode-switch-wrap').style.display = loggedIn ? 'flex' : 'none';
   document.getElementById('class-switch-wrap').style.display = loggedIn ? 'flex' : 'none';
   document.getElementById('bank-switch-wrap').style.display = loggedIn ? 'flex' : 'none';
+  document.getElementById('btn-toggle-sidebar').style.display = loggedIn ? 'inline-block' : 'none';
 }
 
 function updateAuthUI() {
@@ -1727,6 +1749,19 @@ function switchMode(newMode) {
 
 document.getElementById('btn-lecture').addEventListener('click', () => switchMode('lecture'));
 document.getElementById('btn-practice').addEventListener('click', () => switchMode('practice'));
+
+// 側邊欄（篩選/跳題）預設收起，點按鈕才展開
+const SIDEBAR_HIDDEN_KEY = 'sidebarHidden';
+function setSidebarHidden(hidden) {
+  document.getElementById('app-layout').classList.toggle('sidebar-hidden', hidden);
+  document.getElementById('btn-toggle-sidebar').classList.toggle('active', !hidden);
+  localStorage.setItem(SIDEBAR_HIDDEN_KEY, hidden ? '1' : '0');
+}
+const sidebarHiddenSaved = localStorage.getItem(SIDEBAR_HIDDEN_KEY);
+setSidebarHidden(sidebarHiddenSaved === null ? true : sidebarHiddenSaved === '1');
+document.getElementById('btn-toggle-sidebar').addEventListener('click', () => {
+  setSidebarHidden(!document.getElementById('app-layout').classList.contains('sidebar-hidden'));
+});
 
 document.getElementById('filter-diff').addEventListener('change', applyFilter);
 document.getElementById('btn-reset-score').addEventListener('click', () => {
