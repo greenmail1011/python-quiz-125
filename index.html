@@ -1281,8 +1281,18 @@ document.getElementById('admin-modal').addEventListener('click', (e) => {
   if (e.target.id === 'admin-modal') closeAdminModal();
 });
 
-function startAuthListener() {
+// 每次開啟網頁都要求重新登入：不使用瀏覽器記住的登入狀態，
+// 並清除任何殘留的舊登入憑證，避免出現「畫面已顯示登入，但還沒選帳號」的情況。
+async function startAuthListener() {
   if (!firebaseReady) return;
+  try {
+    await fbAuth.setPersistence(firebase.auth.Auth.Persistence.NONE);
+  } catch (e) {
+    console.warn('setPersistence 失敗', e);
+  }
+  try {
+    await fbAuth.signOut();
+  } catch (e) {}
   fbAuth.onAuthStateChanged(async (user) => {
     if (user) {
       const disabled = await loadStudentDoc(user.uid);
