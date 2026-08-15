@@ -1264,6 +1264,55 @@ async function saveClassProgressCloud(bank, className, lectureData) {
   }
 }
 
+// 只把「新講的一題」加進雲端（arrayUnion），不會覆蓋既有的 covered 清單。
+// 這是關鍵：即使本機還沒同步完雲端資料，也絕不會把整班紀錄洗掉。
+async function addCoveredCloud(bank, className, qid) {
+  if (!fbDb || !currentUser) return;
+  try {
+    await fbDb.collection('classProgress').doc(classProgressDocId(bank, className)).set({
+      className,
+      bank,
+      covered: firebase.firestore.FieldValue.arrayUnion(qid),
+      updatedBy: currentUser.email || '',
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  } catch (e) {
+    console.warn('儲存雲端講解進度失敗', e);
+  }
+}
+
+// 只更新「目前上到第幾題」，完全不碰 covered。
+async function saveLastIndexCloud(bank, className, lastIndex) {
+  if (!fbDb || !currentUser) return;
+  try {
+    await fbDb.collection('classProgress').doc(classProgressDocId(bank, className)).set({
+      className,
+      bank,
+      lastIndex: lastIndex || 0,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  } catch (e) {
+    console.warn('儲存雲端進度位置失敗', e);
+  }
+}
+
+// 只有使用者按「清除本班講解紀錄」時，才會真的清空 covered。
+async function clearClassProgressCloud(bank, className) {
+  if (!fbDb || !currentUser) return;
+  try {
+    await fbDb.collection('classProgress').doc(classProgressDocId(bank, className)).set({
+      className,
+      bank,
+      lastIndex: 0,
+      covered: [],
+      updatedBy: currentUser.email || '',
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  } catch (e) {
+    console.warn('清除雲端班級講解進度失敗', e);
+  }
+}
+
 async function deleteClassProgressCloud(className) {
   if (!fbDb || !currentUser) return;
   for (const bank of ['main', 'apcs']) {
@@ -1641,7 +1690,7 @@ function persistIndex() {
   classData()[mode].lastIndex = currentIndex;
   saveStore();
   if (mode === 'lecture') {
-    saveClassProgressCloud(currentBank, store.currentClass, classData().lecture);
+    saveLastIndexCloud(currentBank, store.currentClass, currentIndex);
   }
 }
 
@@ -1873,7 +1922,7 @@ function onLectureSelect(id, letter) {
   const covered = new Set(classData().lecture.covered);
   covered.add(id);
   classData().lecture.covered = Array.from(covered);
-  saveClassProgressCloud(currentBank, store.currentClass, classData().lecture);
+  addCoveredCloud(currentBank, store.currentClass, id);
   showAnswerPanel(id, qById(id).answer);
   document.getElementById('reveal-btn').textContent = '隱藏解答';
   applyOptionStyling(id);
@@ -1907,7 +1956,7 @@ document.getElementById('reveal-btn').addEventListener('click', () => {
     const covered = new Set(classData().lecture.covered);
     covered.add(id);
     classData().lecture.covered = Array.from(covered);
-    saveClassProgressCloud(currentBank, store.currentClass, classData().lecture);
+    addCoveredCloud(currentBank, store.currentClass, id);
     showAnswerPanel(id, qById(id).answer);
     document.getElementById('reveal-btn').textContent = '隱藏解答';
   } else {
@@ -1963,7 +2012,7 @@ document.getElementById('btn-reset-lecture').addEventListener('click', () => {
   if (!confirm('確定要清除「' + store.currentClass + '」的講解紀錄嗎？')) return;
   classData().lecture = { lastIndex: 0, covered: [] };
   currentIndex = 0;
-  saveClassProgressCloud(currentBank, store.currentClass, classData().lecture);
+  clearClassProgressCloud(currentBank, store.currentClass);
   renderGrid();
   updateScoreBox();
   renderQuestion();
