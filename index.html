@@ -1421,13 +1421,12 @@ document.getElementById('admin-modal').addEventListener('click', (e) => {
 async function startAuthListener() {
   if (!firebaseReady) return;
   try {
-    await fbAuth.setPersistence(firebase.auth.Auth.Persistence.NONE);
+    // 用「分頁 session」保存登入狀態：同一個分頁重新整理不用重新登入，
+    // 但關掉分頁／瀏覽器，或開新分頁，就需要重新登入（不會像預設那樣永久記住）。
+    await fbAuth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
   } catch (e) {
     console.warn('setPersistence 失敗', e);
   }
-  try {
-    await fbAuth.signOut();
-  } catch (e) {}
   fbAuth.onAuthStateChanged(async (user) => {
     if (user) {
       const disabled = await loadStudentDoc(user.uid);
