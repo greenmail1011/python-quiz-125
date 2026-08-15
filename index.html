@@ -1235,17 +1235,18 @@ function classProgressDocId(bank, className) {
 }
 
 async function loadClassProgressCloud(bank, className) {
-  if (!fbDb) return null;
+  if (!fbDb) return { error: true };
   try {
     const snap = await fbDb.collection('classProgress').doc(classProgressDocId(bank, className)).get();
     if (snap.exists) {
       const data = snap.data() || {};
       return { lastIndex: data.lastIndex || 0, covered: Array.isArray(data.covered) ? data.covered : [] };
     }
+    return null; // 文件確實不存在（跟「讀取失敗」要分清楚）
   } catch (e) {
     console.warn('讀取雲端班級講解進度失敗', e);
+    return { error: true }; // 讀取失敗：絕不能當成「雲端沒資料」而覆蓋掉
   }
-  return null;
 }
 
 async function saveClassProgressCloud(bank, className, lectureData) {
@@ -1351,19 +1352,25 @@ async function syncClassLectureFromCloud(bank, className) {
   const localCovered = (cd.lecture && cd.lecture.covered) || [];
   const localLastIndex = (cd.lecture && cd.lecture.lastIndex) || 0;
   const cloud = await loadClassProgressCloud(bank, className);
+
+  // 讀取失敗時什麼都不做：寧可畫面暫時沒標記，也絕不能把雲端紀錄蓋掉
+  if (cloud && cloud.error) {
+    console.warn('雲端讀取失敗，保留原紀錄，不做任何寫入');
+    return;
+  }
+
   const cloudCovered = (cloud && cloud.covered) || [];
   const cloudLastIndex = (cloud && cloud.lastIndex) || 0;
 
-  // 用「合併」而不是直接覆蓋：這台電腦如果還留著舊版本存的本機講解紀錄
-  // （不管雲端目前有沒有資料、是不是從別台電腦傳上去的），都會併進雲端，
-  // 不會因為登入順序不同就把某一台電腦的紀錄蓋掉。
+  // 用「合併」而不是直接覆蓋，避免不同電腦互相蓋掉。
   const merged = Array.from(new Set([...cloudCovered, ...localCovered]));
   const mergedLastIndex = Math.max(cloudLastIndex, localLastIndex);
-  const needsCloudUpdate = !cloud || merged.length !== cloudCovered.length || mergedLastIndex !== cloudLastIndex;
 
   cd.lecture = { lastIndex: mergedLastIndex, covered: merged };
 
-  if (needsCloudUpdate) {
+  // 只有本機真的有東西要補進雲端時才寫回，而且永遠不寫出空清單。
+  // （清空只可能來自使用者按「清除本班講解紀錄」）
+  if (merged.length > 0 && merged.length > cloudCovered.length) {
     await saveClassProgressCloud(bank, className, cd.lecture);
   }
   if (localCovered.length > 0) {
