@@ -840,6 +840,7 @@
     <label>班級</label>
     <select id="class-select"></select>
     <button id="btn-add-class" title="新增班級">＋ 新增班級</button>
+    <button id="btn-rename-class" title="重新命名目前班級">✎ 重新命名</button>
     <button id="btn-delete-class" title="刪除目前班級">－ 刪除班級</button>
   </div>
   <span class="progress-hint" id="progress-hint"></span>
@@ -1200,6 +1201,93 @@ async function resetStudentProgress() {
   }
 }
 
+// ---------- 班級講解進度（雲端，不落地存到 local 電腦）----------
+// 每個「班級＋題庫」對應雲端 classProgress 集合裡的一份文件，
+// 存放這個班級在講解模式下「已經上過哪些題目、目前上到第幾題」。
+function classProgressDocId(bank, className) {
+  return bank + '__' + encodeURIComponent(className);
+}
+
+async function loadClassProgressCloud(bank, className) {
+  if (!fbDb) return null;
+  try {
+    const snap = await fbDb.collection('classProgress').doc(classProgressDocId(bank, className)).get();
+    if (snap.exists) {
+      const data = snap.data() || {};
+      return { lastIndex: data.lastIndex || 0, covered: Array.isArray(data.covered) ? data.covered : [] };
+    }
+  } catch (e) {
+    console.warn('讀取雲端班級講解進度失敗', e);
+  }
+  return null;
+}
+
+async function saveClassProgressCloud(bank, className, lectureData) {
+  if (!fbDb || !currentUser) return;
+  try {
+    await fbDb.collection('classProgress').doc(classProgressDocId(bank, className)).set({
+      className,
+      bank,
+      lastIndex: lectureData.lastIndex || 0,
+      covered: lectureData.covered || [],
+      updatedBy: currentUser.email || '',
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  } catch (e) {
+    console.warn('儲存雲端班級講解進度失敗', e);
+  }
+}
+
+async function deleteClassProgressCloud(className) {
+  if (!fbDb || !currentUser) return;
+  for (const bank of ['main', 'apcs']) {
+    try {
+      await fbDb.collection('classProgress').doc(classProgressDocId(bank, className)).delete();
+    } catch (e) {
+      console.warn('刪除雲端班級講解進度失敗 (' + bank + ')', e);
+    }
+  }
+}
+
+async function renameClassProgressCloud(oldName, newName) {
+  if (!fbDb || !currentUser) return;
+  for (const bank of ['main', 'apcs']) {
+    try {
+      const oldRef = fbDb.collection('classProgress').doc(classProgressDocId(bank, oldName));
+      const snap = await oldRef.get();
+      if (snap.exists) {
+        const data = snap.data();
+        await fbDb.collection('classProgress').doc(classProgressDocId(bank, newName)).set(
+          Object.assign({}, data, { className: newName, updatedAt: firebase.firestore.FieldValue.serverTimestamp() })
+        );
+        await oldRef.delete();
+      }
+    } catch (e) {
+      console.warn('搬移雲端班級講解進度失敗 (' + bank + ')', e);
+    }
+  }
+}
+
+// 切換班級／題庫，或剛登入時呼叫：改成完全以雲端資料為準。
+// 如果雲端還沒有資料，但這台電腦剛好還留著舊版本存的本地紀錄，就搬一次上雲端做遷移。
+async function syncClassLectureFromCloud(bank, className) {
+  if (!currentUser || !fbDb) return;
+  const cd = ensureClassData(className, bank);
+  const cloud = await loadClassProgressCloud(bank, className);
+  if (cloud) {
+    cd.lecture = cloud;
+  } else if (cd.lecture && cd.lecture.covered && cd.lecture.covered.length > 0) {
+    // 舊版留在這台電腦的講解紀錄，第一次登入時搬去雲端，並立刻把本機那份清掉
+    await saveClassProgressCloud(bank, className, cd.lecture);
+    saveStore();
+  }
+  if (bank === currentBank && className === store.currentClass) {
+    renderGrid();
+    updateScoreBox();
+    renderQuestion();
+  }
+}
+
 // ---------- Admin dashboard ----------
 function openAdminModal() {
   document.getElementById('admin-modal').style.display = 'block';
@@ -1341,7 +1429,11 @@ async function startAuthListener() {
     }
     currentUser = user;
     updateAuthUI();
-    renderQuestion();
+    if (user) {
+      await syncClassLectureFromCloud(currentBank, store.currentClass);
+    } else {
+      renderQuestion();
+    }
   });
 }
 
@@ -1362,8 +1454,17 @@ function loadStore() {
   return store;
 }
 
+// 「已講解題目」改成只存雲端，本地端存檔時要把 .lecture 拿掉，
+// 這樣這台電腦的 localStorage 就不會留下班級的講解紀錄。
 function saveStore() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+  const toSave = JSON.parse(JSON.stringify(store));
+  ['main', 'apcs'].forEach(bank => {
+    const bankData = toSave.data[bank] || {};
+    Object.keys(bankData).forEach(cls => {
+      if (bankData[cls]) delete bankData[cls].lecture;
+    });
+  });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
 }
 
 function ensureClassData(className, bank) {
@@ -1498,6 +1599,9 @@ function renderGrid() {
 function persistIndex() {
   classData()[mode].lastIndex = currentIndex;
   saveStore();
+  if (mode === 'lecture') {
+    saveClassProgressCloud(currentBank, store.currentClass, classData().lecture);
+  }
 }
 
 function updateScoreBox() {
@@ -1728,7 +1832,7 @@ function onLectureSelect(id, letter) {
   const covered = new Set(classData().lecture.covered);
   covered.add(id);
   classData().lecture.covered = Array.from(covered);
-  saveStore();
+  saveClassProgressCloud(currentBank, store.currentClass, classData().lecture);
   showAnswerPanel(id, qById(id).answer);
   document.getElementById('reveal-btn').textContent = '隱藏解答';
   applyOptionStyling(id);
@@ -1762,7 +1866,7 @@ document.getElementById('reveal-btn').addEventListener('click', () => {
     const covered = new Set(classData().lecture.covered);
     covered.add(id);
     classData().lecture.covered = Array.from(covered);
-    saveStore();
+    saveClassProgressCloud(currentBank, store.currentClass, classData().lecture);
     showAnswerPanel(id, qById(id).answer);
     document.getElementById('reveal-btn').textContent = '隱藏解答';
   } else {
@@ -1818,7 +1922,9 @@ document.getElementById('btn-reset-lecture').addEventListener('click', () => {
   if (!confirm('確定要清除「' + store.currentClass + '」的講解紀錄嗎？')) return;
   classData().lecture = { lastIndex: 0, covered: [] };
   currentIndex = 0;
-  saveStore();
+  saveClassProgressCloud(currentBank, store.currentClass, classData().lecture);
+  renderGrid();
+  updateScoreBox();
   renderQuestion();
 });
 
@@ -1829,6 +1935,7 @@ function switchClass(newClass) {
   const savedIdx = classData()[mode].lastIndex || 0;
   currentIndex = Math.min(savedIdx, filteredIds.length - 1);
   renderQuestion();
+  syncClassLectureFromCloud(currentBank, newClass);
 }
 
 function switchBank(newBank) {
@@ -1846,6 +1953,7 @@ function switchBank(newBank) {
   currentIndex = Math.min(savedIdx, filteredIds.length - 1);
   renderGrid();
   renderQuestion();
+  syncClassLectureFromCloud(newBank, store.currentClass);
 }
 
 document.getElementById('btn-bank-main').addEventListener('click', () => switchBank('main'));
@@ -1868,7 +1976,30 @@ document.getElementById('btn-add-class').addEventListener('click', () => {
   document.getElementById('class-select').value = trimmed;
 });
 
-document.getElementById('btn-delete-class').addEventListener('click', () => {
+document.getElementById('btn-rename-class').addEventListener('click', async () => {
+  const oldName = store.currentClass;
+  const input = window.prompt('請輸入「' + oldName + '」的新名稱：', oldName);
+  if (input === null) return;
+  const trimmed = input.trim();
+  if (!trimmed || trimmed === oldName) return;
+  if (store.classes.includes(trimmed)) {
+    alert('已經有同名的班級了，請換一個名稱。');
+    return;
+  }
+  store.classes = store.classes.map(c => (c === oldName ? trimmed : c));
+  store.data.main[trimmed] = store.data.main[oldName];
+  delete store.data.main[oldName];
+  store.data.apcs[trimmed] = store.data.apcs[oldName];
+  delete store.data.apcs[oldName];
+  store.currentClass = trimmed;
+  saveStore();
+  renderClassSelect();
+  document.getElementById('class-select').value = trimmed;
+  renderQuestion();
+  await renameClassProgressCloud(oldName, trimmed);
+});
+
+document.getElementById('btn-delete-class').addEventListener('click', async () => {
   const target = store.currentClass;
   if (store.classes.length <= 1) {
     alert('至少要保留一個班級，無法刪除。');
@@ -1883,6 +2014,7 @@ document.getElementById('btn-delete-class').addEventListener('click', () => {
   renderClassSelect();
   switchClass(store.currentClass);
   document.getElementById('class-select').value = store.currentClass;
+  await deleteClassProgressCloud(target);
 });
 
 document.addEventListener('keydown', (e) => {
