@@ -1273,14 +1273,28 @@ async function renameClassProgressCloud(oldName, newName) {
 async function syncClassLectureFromCloud(bank, className) {
   if (!currentUser || !fbDb) return;
   const cd = ensureClassData(className, bank);
+  const localCovered = (cd.lecture && cd.lecture.covered) || [];
+  const localLastIndex = (cd.lecture && cd.lecture.lastIndex) || 0;
   const cloud = await loadClassProgressCloud(bank, className);
-  if (cloud) {
-    cd.lecture = cloud;
-  } else if (cd.lecture && cd.lecture.covered && cd.lecture.covered.length > 0) {
-    // 舊版留在這台電腦的講解紀錄，第一次登入時搬去雲端，並立刻把本機那份清掉
+  const cloudCovered = (cloud && cloud.covered) || [];
+  const cloudLastIndex = (cloud && cloud.lastIndex) || 0;
+
+  // 用「合併」而不是直接覆蓋：這台電腦如果還留著舊版本存的本機講解紀錄
+  // （不管雲端目前有沒有資料、是不是從別台電腦傳上去的），都會併進雲端，
+  // 不會因為登入順序不同就把某一台電腦的紀錄蓋掉。
+  const merged = Array.from(new Set([...cloudCovered, ...localCovered]));
+  const mergedLastIndex = Math.max(cloudLastIndex, localLastIndex);
+  const needsCloudUpdate = !cloud || merged.length !== cloudCovered.length || mergedLastIndex !== cloudLastIndex;
+
+  cd.lecture = { lastIndex: mergedLastIndex, covered: merged };
+
+  if (needsCloudUpdate) {
     await saveClassProgressCloud(bank, className, cd.lecture);
-    saveStore();
   }
+  if (localCovered.length > 0) {
+    saveStore(); // 併完就把這台電腦本機殘留的講解紀錄清掉，之後一律以雲端為準
+  }
+
   if (bank === currentBank && className === store.currentClass) {
     renderGrid();
     updateScoreBox();
